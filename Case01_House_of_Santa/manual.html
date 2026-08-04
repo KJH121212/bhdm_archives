@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BHDM MANUAL // 7704-F9A [산타의 집]</title>
+    <style>
+        :root {
+            --bg-body: #06080d;
+            --bg-surface: #0e131f;
+            --bg-surface-elevated: #161d2e;
+            --border-dim: #1e293b;
+            --border-bright: #334155;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-muted: #64748b;
+            --accent-red: #dc2626;
+            --accent-red-hover: #b91c1c;
+            --accent-red-dark: #450a0a;
+            --accent-red-glow: rgba(220, 38, 38, 0.2);
+            --font-mono: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .manual-container {
+            width: 100%;
+            max-width: 880px;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-dim);
+            border-radius: 8px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        /* Top System Bar */
+        .system-bar {
+            background-color: #030407;
+            padding: 10px 24px;
+            border-bottom: 1px solid var(--border-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .system-status {
+            color: var(--accent-red);
+            font-weight: 700;
+        }
+
+        /* Header Section */
+        .header {
+            padding: 32px;
+            border-bottom: 1px solid var(--border-dim);
+            background: linear-gradient(180deg, rgba(220, 38, 38, 0.05) 0%, rgba(14, 19, 31, 0) 100%);
+        }
+
+        .clearance-tag {
+            display: inline-block;
+            background-color: var(--accent-red-dark);
+            border: 1px solid var(--accent-red);
+            color: #fca5a5;
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 3px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+            margin-bottom: 20px;
+        }
+
+        /* Meta Grid */
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            background-color: #080b10;
+            padding: 16px;
+            border-radius: 6px;
+            border: 1px solid var(--border-dim);
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 0.72rem;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .meta-value {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Warning Ticker */
+        .warning-banner {
+            background-color: var(--accent-red-dark);
+            border-y: 1px solid var(--accent-red);
+            padding: 12px 24px;
+            font-size: 0.83rem;
+            color: #fecaca;
+            font-weight: 600;
+        }
+
+        /* Main Content Body */
+        .content {
+            padding: 32px;
+        }
+
+        section {
+            margin-bottom: 36px;
+        }
+
+        section:last-child {
+            margin-bottom: 0;
+        }
+
+        h2 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.3px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background-color: var(--accent-red);
+        }
+
+        /* Rule Cards & Tables */
+        .rule-box {
+            background-color: var(--bg-surface-elevated);
+            border: 1px solid var(--border-dim);
+            border-left: 3px solid var(--accent-red);
+            padding: 18px 20px;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 12px;
+        }
+
+        .rule-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .rule-tag {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent-red);
+        }
+
+        .rule-desc {
+            font-size: 0.88rem;
+            color: var(--text-sub);
+            line-height: 1.6;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            background-color: var(--bg-surface-elevated);
+            border: 1px solid var(--border-dim);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .data-table th, .data-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-dim);
+            text-align: left;
+        }
+
+        .data-table tr:last-child th, .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table th {
+            background-color: #080b10;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            width: 25%;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .data-table td {
+            color: var(--text-sub);
+        }
+
+        /* Directives List */
+        .directive-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .directive-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 12px;
+            font-size: 0.88rem;
+            color: var(--text-sub);
+            line-height: 1.6;
+        }
+
+        .directive-list li::before {
+            content: "■";
+            position: absolute;
+            left: 0;
+            color: var(--accent-red);
+            font-size: 0.75rem;
+            top: 2px;
+        }
+
+        /* Highlight Badge */
+        .note-tag {
+            font-size: 0.8rem;
+            color: var(--accent-red);
+            font-weight: 700;
+            display: block;
+            margin-top: 4px;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #030407;
+            padding: 20px;
+            border-top: 1px solid var(--border-dim);
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 600px) {
+            .content, .header { padding: 20px; }
+            .meta-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="manual-container">
+    <!-- Top System Bar -->
+    <div class="system-bar">
+        <span>SYS.LOC: BHDM-ARCHIVE-KOR</span>
+        <span class="system-status">SECURE FILE // LEVEL 3 RESTRICTED</span>
+    </div>
+
+    <!-- Header Section -->
+    <div class="header">
+        <span class="clearance-tag">SECURITY CLEARANCE LEVEL 3</span>
+        <h1>현장 대응 매뉴얼: 7704-F9A [산타의 집]</h1>
+        
+        <div class="meta-grid">
+            <div class="meta-item">
+                <span class="meta-label">DOCUMENT ID</span>
+                <span class="meta-value">7704-F9A</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">ANOMALY CODE</span>
+                <span class="meta-value">7704-F9A</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">THREAT CLASS</span>
+                <span class="meta-value">Class-3 (지속 침식)</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">EST. FATALITY</span>
+                <span class="meta-value">98.5% (고위험)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warning Banner -->
+    <div class="warning-banner">
+        WARNING: 본 매뉴얼은 미확인 규칙 세트로 인한 생환율 저하를 막기 위해 작성되었습니다. 현장 요원은 인가되지 않은 단독 행동을 절대 금합니다.
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+
+        <!-- Section 1 -->
+        <section>
+            <h2>1. 진입 수칙 및 환경 특성 (ENTRY & ENVIRONMENT)</h2>
+            <table class="data-table">
+                <tr>
+                    <th>진입 조건</th>
+                    <td>눈이 내리는 밤 (또는 인공 눈발 환경)</td>
+                </tr>
+                <tr>
+                    <th>진입 절차 (안전 확인됨)</th>
+                    <td>
+                        붉은색 전구나 촛불을 켠 상태에서 차가운 문고리를 잡고 <strong>"산타의 선물을 받으러 왔습니다"</strong>라고 중얼거린 뒤 문을 연다.<br>
+                        <span class="note-tag">※ 진입 시 별도의 신체적/기억적 대가는 요구되지 않음.</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>소지품 제약</th>
+                    <td>
+                        진입 즉시 <strong>[탐사국 제공 특수 물품]</strong> 및 <strong>[착용 중인 의류]</strong>를 제외한 모든 개인 소지품(스마트폰, 개인 무기, 지갑 등)은 차원 간섭으로 인해 소멸합니다.
+                    </td>
+                </tr>
+                <tr>
+                    <th>공간 및 기상 특성</th>
+                    <td>
+                        구역 내부 바깥에 내리는 눈은 인체 및 일반 물질을 즉시 부식/용해시킵니다. (방호 대책 필수)
+                    </td>
+                </tr>
+                <tr>
+                    <th>장식품 예외 현상</th>
+                    <td>
+                        구역 내에서 '크리스마스 장식'의 성격을 띤 개체(전구, 장식용 박제 등)는 눈보라 속에서도 용해되지 않는 물리적 특성을 보임.
+                    </td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Section 2 -->
+        <section>
+            <h2>2. 핵심 거래 및 소환 수칙 (GIFT EXCHANGE PROTOCOL)</h2>
+            
+            <div class="rule-box">
+                <div class="rule-title">
+                    <span>소환 및 1:1 독대 원칙</span>
+                    <span class="rule-tag">RULE 01</span>
+                </div>
+                <div class="rule-desc">
+                    '산타'라 불리는 이상 존재는 구역 내 위치와 상관없이 <strong>요원이 호명하면 언제 어디서든 즉시 모습을 드러냅니다.</strong> 단, 산타는 오직 <strong>요원이 단독으로 위치한 1:1 상황에서만</strong> 선물 교환에 응합니다. 타인의 시선이나 동석이 확인될 경우 거래를 거부하고 소멸합니다.
+                </div>
+            </div>
+
+            <div class="rule-box">
+                <div class="rule-title">
+                    <span>대가의 등가교환</span>
+                    <span class="rule-tag">RULE 02</span>
+                </div>
+                <div class="rule-desc">
+                    요원이 요구하는 선물(정보, 방호 도구 등)의 가치와 난이도에 비례하여 산타는 신체 부위(장기, 사지, 손가락), 수명 등 가혹한 대가를 요구합니다.
+                </div>
+            </div>
+
+            <div class="rule-box">
+                <div class="rule-title">
+                    <span>거래 불발 및 불이익</span>
+                    <span class="rule-tag">RULE 03</span>
+                </div>
+                <div class="rule-desc">
+                    제시된 대가를 거절하여 거래가 불발되더라도 즉시 공격받지는 않으나, 미준비 상태에서의 무모한 거래 시도는 심각한 정신 오염 및 신체 손상을 초래합니다.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3 -->
+        <section>
+            <h2>3. 현장 주의사항 및 작전 목표 (DIRECTIVES & OBJECTIVES)</h2>
+            <ul class="directive-list">
+                <li><strong>작전 핵심 목표:</strong> 차단 구역 내부의 생존자 확보, 탈출 열쇠 입수, 괴담 법칙 파악 후 귀환.</li>
+                <li><strong>소지품 손실 대비:</strong> 진입 직후 인가된 [탐사국 제공 특수 물품] 외의 무기 및 장비가 소멸하므로 현장 확보 물자에 의존해야 합니다.</li>
+                <li><strong>부식성 눈보라 대책:</strong> 바깥의 눈보라가 가진 용해 특성과 '녹지 않는 장식품' 간의 상호작용을 세밀하게 관측하고 방호 대책을 수립하십시오.</li>
+                <li><strong>임의 개인 거래 금지:</strong> 산타는 언제 어디서든 불러낼 수 있으나, 팀원 간 사전 협의 없이 단독으로 호명하여 개인 거래를 진행하는 행위를 엄금합니다.</li>
+                <li><strong>생환 및 기록 전달:</strong> 현장에서 파악한 규칙의 맹점과 파훼 정보는 무슨 수를 써서라도 생환하여 보고서로 작성해야 합니다. 죽은 자의 지식은 후속 팀에게 전달되지 않습니다.</li>
+            </ul>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        BUREAU OF HETEROMORPHIC DISASTER MANAGEMENT // DOCUMENT ID: 7704-F9A
+    </div>
+</div>
+
+</body>
+</html>

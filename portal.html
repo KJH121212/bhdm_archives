@@ -284,6 +284,90 @@
             color: var(--text-sub);
         }
 
+        /* Terminal Access Card Styles */
+        .terminal-card {
+            background-color: #030407;
+            border: 1px solid var(--border-bright);
+            border-left: 4px solid var(--accent-red);
+            border-radius: 6px;
+            padding: 28px;
+            font-family: var(--font-mono);
+        }
+
+        .terminal-header {
+            font-size: 0.8rem;
+            color: var(--accent-red);
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .terminal-title {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .terminal-desc {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .terminal-input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .terminal-input {
+            flex: 1;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-dim);
+            color: var(--text-main);
+            padding: 12px 16px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .terminal-input:focus {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 8px var(--accent-red-glow);
+        }
+
+        .terminal-btn {
+            background-color: var(--accent-red);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .terminal-btn:hover {
+            background-color: var(--accent-red-hover);
+        }
+
+        .terminal-error {
+            display: none;
+            color: #fca5a5;
+            background-color: var(--accent-red-dark);
+            border: 1px solid var(--accent-red);
+            padding: 10px 14px;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            margin-top: 14px;
+        }
+
         /* Footer */
         .footer {
             border-top: 1px solid var(--border-dim);
@@ -300,6 +384,7 @@
             .cards-grid { grid-template-columns: 1fr; }
             .navbar { padding: 0 16px; }
             .main-layout { padding: 24px 16px; }
+            .terminal-input-group { flex-direction: column; }
         }
     </style>
 </head>
@@ -342,6 +427,7 @@
             <button class="tab-btn" onclick="switchTab('directives')">02. 현장 수칙</button>
             <button class="tab-btn" onclick="switchTab('warning')">03. 주의사항 (WARNING)</button>
             <button class="tab-btn" onclick="switchTab('specs')">04. 세션 데이터</button>
+            <button class="tab-btn" onclick="switchTab('terminal')">05. 문서 열람 (TERMINAL)</button>
         </div>
 
         <!-- TAB 1: OVERVIEW -->
@@ -434,6 +520,26 @@
             </div>
         </div>
 
+        <!-- TAB 5: DOCUMENT TERMINAL (NEW) -->
+        <div id="tab-terminal" class="tab-content">
+            <div class="terminal-card">
+                <div class="terminal-header">BHDM RESTRICTED ARCHIVE ACCESS</div>
+                <div class="terminal-title">현장 대응 기밀 매뉴얼 열람 터미널</div>
+                <div class="terminal-desc">
+                    하사받은 <strong>[문서 ID]</strong> 또는 <strong>[재난 식별 코드]</strong>를 입력하십시오. 보안 인가 검증 후 해당 차단 구역의 현장 대응 수칙서로 즉시 연결됩니다.
+                </div>
+
+                <div class="terminal-input-group">
+                    <input type="text" id="manual-id" class="terminal-input" placeholder="문서 ID 입력" onkeydown="if(event.key==='Enter') accessManual()">
+                    <button class="terminal-btn" onclick="accessManual()">ACCESS FILE</button>
+                </div>
+
+                <div id="search-error" class="terminal-error">
+                    ⚠️ <strong>ACCESS DENIED:</strong> 존재하지 않거나 보안 인가 등급을 초월한 문서 ID입니다. 코드를 다시 확인하십시오.
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- Footer -->
@@ -443,6 +549,12 @@
 
     <!-- Interactive JavaScript -->
     <script>
+        // 문서 ID 매핑 데이터베이스
+        const manualDatabase = {
+            "7704-F9A": "Case01_House_of_Santa/manual.html"
+            // 새로운 시나리오가 추가되면 여기에 줄을 추가하세요.
+        };
+
         function switchTab(tabId) {
             // Remove active class from all tabs and buttons
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -451,6 +563,21 @@
             // Activate target tab and button
             document.getElementById('tab-' + tabId).classList.add('active');
             event.currentTarget.classList.add('active');
+        }
+
+        function accessManual() {
+            const inputField = document.getElementById("manual-id");
+            const errorMessage = document.getElementById("search-error");
+            
+            // 입력값 공백 제거 및 대문자 변환
+            const enteredId = inputField.value.trim().toUpperCase();
+
+            if (manualDatabase[enteredId]) {
+                errorMessage.style.display = "none";
+                window.location.href = manualDatabase[enteredId];
+            } else {
+                errorMessage.style.display = "block";
+            }
         }
     </script>
 
