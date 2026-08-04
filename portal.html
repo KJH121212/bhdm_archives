@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BHDM PORTAL // 특수이형재난관리국 기밀 통합 데이터베이스</title>
+    <style>
+        :root {
+            --bg-body: #06080d;
+            --bg-surface: #0e131f;
+            --bg-surface-elevated: #161d2e;
+            --border-dim: #1e293b;
+            --border-bright: #334155;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-muted: #64748b;
+            --accent-red: #dc2626;
+            --accent-red-hover: #b91c1c;
+            --accent-red-dark: #450a0a;
+            --accent-red-glow: rgba(220, 38, 38, 0.2);
+            --font-mono: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 1. Navigation Bar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: rgba(6, 8, 13, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-dim);
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-mono);
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            color: var(--text-main);
+        }
+
+        .brand-badge {
+            background-color: var(--accent-red);
+            color: #fff;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 2px;
+            letter-spacing: 1.5px;
+        }
+
+        .nav-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-red);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-red);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* 2. Hero Section */
+        .hero {
+            background: linear-gradient(180deg, rgba(220, 38, 38, 0.05) 0%, rgba(6, 8, 13, 0) 100%), var(--bg-body);
+            border-bottom: 1px solid var(--border-dim);
+            padding: 60px 24px 40px 24px;
+            text-align: center;
+        }
+
+        .hero-inner {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-tag {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--accent-red);
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .hero-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            color: var(--text-main);
+        }
+
+        .hero-desc {
+            font-size: 1rem;
+            color: var(--text-sub);
+            max-width: 640px;
+            margin: 0 auto 28px auto;
+            word-break: keep-all;
+        }
+
+        /* Ominous Ticker Banner */
+        .ticker-bar {
+            background-color: var(--accent-red-dark);
+            border-y: 1px solid var(--accent-red);
+            padding: 10px 24px;
+            font-size: 0.83rem;
+            color: #fca5a5;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+
+        /* 3. Main Portal Area */
+        .main-layout {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 24px;
+            flex: 1;
+        }
+
+        /* Tabs Interface */
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            border-bottom: 1px solid var(--border-dim);
+            margin-bottom: 32px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-sub);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-red);
+            border-bottom-color: var(--accent-red);
+            font-weight: 700;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Content Blocks */
+        .content-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-dim);
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-header-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-header-title::before {
+            content: "";
+            width: 4px;
+            height: 16px;
+            background-color: var(--accent-red);
+        }
+
+        /* Grid Layouts */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .directive-card {
+            background-color: var(--bg-surface-elevated);
+            border: 1px solid var(--border-dim);
+            padding: 20px;
+            border-radius: 4px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .directive-card:hover {
+            border-color: var(--border-bright);
+            transform: translateY(-2px);
+        }
+
+        .directive-num {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent-red);
+            margin-bottom: 6px;
+        }
+
+        .directive-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .directive-desc {
+            font-size: 0.83rem;
+            color: var(--text-sub);
+            line-height: 1.5;
+        }
+
+        /* Table Design */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        .data-table th, .data-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-dim);
+            text-align: left;
+        }
+
+        .data-table th {
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            width: 25%;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+
+        .data-table td {
+            color: var(--text-sub);
+        }
+
+        /* Footer */
+        .footer {
+            border-top: 1px solid var(--border-dim);
+            padding: 24px;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background-color: #030407;
+        }
+
+        @media (max-width: 640px) {
+            .hero-title { font-size: 1.6rem; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .navbar { padding: 0 16px; }
+            .main-layout { padding: 24px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Sticky Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="brand-badge">BHDM</span>
+            <span>특수이형재난관리국</span>
+        </div>
+        <div class="nav-status">
+            <span class="status-dot"></span>
+            <span>SECURE SERVER // LEVEL 2 AUTHORIZED</span>
+        </div>
+    </nav>
+
+    <!-- 2. Hero Section -->
+    <header class="hero">
+        <div class="hero-inner">
+            <div class="hero-tag">FIELD AGENT RECRUITMENT PROTOCOL</div>
+            <h1 class="hero-title">특수이형재난관리국 현장 대응 요원 모집</h1>
+            <p class="hero-desc">
+                도심 속 이형 현상과 도시 괴담의 위협으로부터 인류의 존재와 존엄을 보존하십시오. 관리국은 현실의 균열을 파헤치고 제정신으로 생환할 요원을 모집합니다.
+            </p>
+        </div>
+    </header>
+
+    <!-- Ominous Warning Ticker -->
+    <div class="ticker-bar">
+        CRITICAL WARNING: 가벼운 호기심이나 무모한 태도로 괴담에 출입하지 마십시오. 미준비된 요원의 소멸은 자산 손실로 처리됩니다.
+    </div>
+
+    <!-- 3. Main Web Portal Content -->
+    <main class="main-layout">
+
+        <!-- Tab Navigation Menu -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('overview')">01. 기관 개요</button>
+            <button class="tab-btn" onclick="switchTab('directives')">02. 현장 수칙</button>
+            <button class="tab-btn" onclick="switchTab('warning')">03. 주의사항 (WARNING)</button>
+            <button class="tab-btn" onclick="switchTab('specs')">04. 세션 데이터</button>
+        </div>
+
+        <!-- TAB 1: OVERVIEW -->
+        <div id="tab-overview" class="tab-content active">
+            <div class="content-card">
+                <div class="card-header-title">기관 설립 목적 (BUREAU MISSION)</div>
+                
+                <div style="background-color: var(--accent-red-dark); border-left: 3px solid var(--accent-red); padding: 10px 14px; margin-bottom: 14px; border-radius: 0 4px 4px 0;">
+                    <span style="color: #fecaca; font-weight: 800; font-size: 0.95rem; display: block;">
+                        "괴담은 현실을 삼키고, 인격을 말소하며, 기억을 오염시킨다."
+                    </span>
+                </div>
+
+                <p style="color: var(--text-sub); font-size: 0.88rem; margin-bottom: 12px; line-height: 1.5;">
+                    <strong style="color: var(--text-main);">특수이형재난관리국(BHDM)</strong>은 도시 괴담이 초래하는 <strong style="color: var(--text-main);">[데이터 말소]</strong>, <strong style="color: var(--text-main);">[정신 붕괴]</strong>, <strong style="color: var(--text-main);">[기억 및 불운 오염]</strong> 등으로부터 현실을 격리·통제하는 국가 비공식 기밀 기관입니다.
+                </p>
+
+                <p style="color: var(--text-sub); font-size: 0.88rem; margin-bottom: 14px; line-height: 1.5;">
+                    본 기관의 목표는 무모한 영웅주의가 아닌, 이형 현상이 강요하는 '특수 규칙(Rule Set)'의 맹점을 냉정하게 파헤쳐 대응 매뉴얼을 완성하고 현장을 완전 봉인하는 것입니다.
+                </p>
+
+                <div style="border-top: 1px dashed var(--border-bright); padding-top: 12px; font-size: 0.85rem; color: var(--accent-red); font-weight: 700;">
+                    살아 돌아와 기록하십시오. 죽은 자는 매뉴얼을 작성할 수 없으며, 기록되지 않은 생존은 후속 재난을 막지 못합니다.
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: DIRECTIVES -->
+        <div id="tab-directives" class="tab-content">
+            <div class="cards-grid">
+                <div class="directive-card">
+                    <div class="directive-num">DIRECTIVE 01</div>
+                    <div class="directive-title">격리 구역 투입 및 통제</div>
+                    <div class="directive-desc">이형 현상이 발현된 차단 구역(Hazard Zone)에 진입하여 물리적 오염 확산을 차단하고 현장을 통제합니다.</div>
+                </div>
+                <div class="directive-card">
+                    <div class="directive-num">DIRECTIVE 02</div>
+                    <div class="directive-title">특수 규칙(Rule Set) 규명</div>
+                    <div class="directive-desc">괴담이 부과하는 법칙과 대가를 우회할 수 있는 맹점 및 생존 조건 규칙을 추리하고 기록합니다.</div>
+                </div>
+                <div class="directive-card">
+                    <div class="directive-num">DIRECTIVE 03</div>
+                    <div class="directive-title">생존자 구출 및 생환</div>
+                    <div class="directive-desc">격리 구역 내부 민간인을 파악하여 정신적·신체적 침식이 심화되기 전 온전한 상태로 구출합니다.</div>
+                </div>
+                <div class="directive-card">
+                    <div class="directive-num">DIRECTIVE 04</div>
+                    <div class="directive-title">대응 매뉴얼 생성 및 봉인</div>
+                    <div class="directive-desc">수집된 규칙 정보를 기반으로 후속 대응팀을 위한 매뉴얼을 완성하고, 근본적 파훼법을 시행해 현장을 봉인합니다.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: WARNING -->
+        <div id="tab-warning" class="tab-content">
+            <div class="content-card" style="border-left: 3px solid var(--accent-red); background-color: var(--accent-red-dark);">
+                <div class="card-header-title" style="color: #fca5a5;">CONTENT WARNING: PSYCHOLOGICAL HORROR & GORE</div>
+                <p style="font-size: 0.88rem; color: #fecaca; margin-bottom: 12px;">
+                    본 캠페인은 자비 없는 어반 오컬트 호러 톤앤매너로 진행됩니다. 세션 진행 중 다음과 같은 고위험 연출 요소가 포함될 수 있습니다.
+                </p>
+                <ul style="padding-left: 20px; font-size: 0.85rem; color: #fecaca; line-height: 1.6;">
+                    <li><strong>신체 훼손 및 고어:</strong> 출혈, 인체 변형, 자해, 장기 및 신체 절단 등의 직접적 신체적 훼손 묘사</li>
+                    <li><strong>정신 오염 및 광기:</strong> 환각, 자아 상실, 비이성적 공포, 정신적 타락 표현</li>
+                    <li><strong>적대적 환경:</strong> 극심한 무력감, 이상 존재와의 대립, 생존 스릴러</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- TAB 4: SPECS -->
+        <div id="tab-specs" class="tab-content">
+            <div class="content-card">
+                <table class="data-table">
+                    <tr>
+                        <th>운영 시스템</th>
+                        <td>Call of Cthulhu 7th Edition (크툴루의 부르기 7판)</td>
+                    </tr>
+                    <tr>
+                        <th>사용 플랫폼</th>
+                        <td><strong>Voice:</strong> Discord / <strong>VTT:</strong> Foundry VTT (FvTT)</td>
+                    </tr>
+                    <tr>
+                        <th>캠페인 형태</th>
+                        <td>도시 괴담 추리 중심 조사극 / 위험도 높은 생존 탐사 (옴니버스 연작)</td>
+                    </tr>
+                    <tr>
+                        <th>권장 캐릭터</th>
+                        <td>특수이형재난관리국 현장대응팀 요원 (조사원, 현장 분석가, 행동대원 등)</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        BUREAU OF HETEROMORPHIC DISASTER MANAGEMENT // SYSTEM LOG: ACTIVE
+    </footer>
+
+    <!-- Interactive JavaScript -->
+    <script>
+        function switchTab(tabId) {
+            // Remove active class from all tabs and buttons
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            // Activate target tab and button
+            document.getElementById('tab-' + tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+
+</body>
+</html>
