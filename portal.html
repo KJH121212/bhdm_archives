@@ -426,8 +426,7 @@
             <button class="tab-btn active" onclick="switchTab('overview')">01. 기관 개요</button>
             <button class="tab-btn" onclick="switchTab('directives')">02. 현장 수칙</button>
             <button class="tab-btn" onclick="switchTab('warning')">03. 주의사항 (WARNING)</button>
-            <button class="tab-btn" onclick="switchTab('specs')">04. 세션 데이터</button>
-            <button class="tab-btn" onclick="switchTab('terminal')">05. 문서 열람 (TERMINAL)</button>
+            <button class="tab-btn" onclick="switchTab('terminal')">04. 문서 열람 (TERMINAL)</button>
         </div>
 
         <!-- TAB 1: OVERVIEW -->
@@ -481,46 +480,56 @@
             </div>
         </div>
 
-        <!-- TAB 3: WARNING -->
+        <!-- TAB 3: HAZARD WARNING (REVISED) -->
         <div id="tab-warning" class="tab-content">
             <div class="content-card" style="border-left: 3px solid var(--accent-red); background-color: var(--accent-red-dark);">
-                <div class="card-header-title" style="color: #fca5a5;">CONTENT WARNING: PSYCHOLOGICAL HORROR & GORE</div>
-                <p style="font-size: 0.88rem; color: #fecaca; margin-bottom: 12px;">
-                    본 캠페인은 자비 없는 어반 오컬트 호러 톤앤매너로 진행됩니다. 세션 진행 중 다음과 같은 고위험 연출 요소가 포함될 수 있습니다.
+                <div class="card-header-title" style="color: #fca5a5; letter-spacing: 0.5px;">
+                    OPERATIONAL HAZARD DISCLOSURE // 현장 투입 고위험 요소 사전 고지
+                </div>
+                
+                <p style="font-size: 0.88rem; color: #fecaca; margin-bottom: 14px; line-height: 1.5;">
+                    차단 구역(Hazard Zone) 내부 작전은 상시적 신체 훼손 및 비가역적 정신 붕괴 위험을 수반합니다. 본국 규정 제44조에 의거, 현장 요원은 다음 <strong>3대 치명적 재해 요소</strong>를 숙지하고 출입 서약에 동의한 것으로 간주합니다.
                 </p>
-                <ul style="padding-left: 20px; font-size: 0.85rem; color: #fecaca; line-height: 1.6;">
-                    <li><strong>신체 훼손 및 고어:</strong> 출혈, 인체 변형, 자해, 장기 및 신체 절단 등의 직접적 신체적 훼손 묘사</li>
-                    <li><strong>정신 오염 및 광기:</strong> 환각, 자아 상실, 비이성적 공포, 정신적 타락 표현</li>
-                    <li><strong>적대적 환경:</strong> 극심한 무력감, 이상 존재와의 대립, 생존 스릴러</li>
-                </ul>
+
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+                    <!-- 1. 신체 훼손 및 고어 -->
+                    <div style="background: rgba(0, 0, 0, 0.4); padding: 12px 14px; border-radius: 4px; border-left: 2px solid var(--accent-red);">
+                        <strong style="color: #fff; font-size: 0.88rem; display: block; margin-bottom: 4px;">
+                            01. 물리적 인체 파괴 및 이형 변이 (Physical Trauma & Somatic Mutation)
+                        </strong>
+                        <span style="font-size: 0.82rem; color: #fca5a5; line-height: 1.4; display: block;">
+                            이형 공간 내 물리 법칙 왜곡으로 인한 급성 출혈, 장기 파열, 골격 강제 변형 및 원인 불명의 강박적 자해 충동이 발생할 수 있습니다.
+                        </span>
+                    </div>
+
+                    <!-- 2. 정신 오염 및 광기 -->
+                    <div style="background: rgba(0, 0, 0, 0.4); padding: 12px 14px; border-radius: 4px; border-left: 2px solid var(--accent-red);">
+                        <strong style="color: #fff; font-size: 0.88rem; display: block; margin-bottom: 4px;">
+                            02. 인식 오염 및 비가역적 자아 상실 (Cognitive Hazard & Ego Dissolution)
+                        </strong>
+                        <span style="font-size: 0.82rem; color: #fca5a5; line-height: 1.4; display: block;">
+                            괴담의 법칙에 노출될 시 시각·청각적 환각, 영구적 편집증, 존재론적 기억 왜곡 및 통제 불가능한 광기 발작 상태에 이를 수 있습니다.
+                        </span>
+                    </div>
+
+                    <!-- 3. 적대적 환경 및 무력감 -->
+                    <div style="background: rgba(0, 0, 0, 0.4); padding: 12px 14px; border-radius: 4px; border-left: 2px solid var(--accent-red);">
+                        <strong style="color: #fff; font-size: 0.88rem; display: block; margin-bottom: 4px;">
+                            03. 환경적 완전 고립 및 구조 불가 (Extreme Isolation & Lethal Hostility)
+                        </strong>
+                        <span style="font-size: 0.82rem; color: #fca5a5; line-height: 1.4; display: block;">
+                            격리 구역 진입 시 외부 지원 및 통신이 영구 두절될 수 있으며, 생존을 위한 자의적 철수 외에 본국의 즉각적인 구조 지원은 일절 제공되지 않습니다.
+                        </span>
+                    </div>
+                </div>
+
+                <div style="border-top: 1px dashed rgba(220, 38, 38, 0.4); padding-top: 10px; font-size: 0.78rem; color: #f87171; font-family: var(--font-mono); text-align: right;">
+                    [BHDM-FORM-702] 요원 서약 검증 완료 // 생존 보장 부존재 조항 발효됨
+                </div>
             </div>
         </div>
 
-        <!-- TAB 4: SPECS -->
-        <div id="tab-specs" class="tab-content">
-            <div class="content-card">
-                <table class="data-table">
-                    <tr>
-                        <th>운영 시스템</th>
-                        <td>Call of Cthulhu 7th Edition (크툴루의 부르기 7판)</td>
-                    </tr>
-                    <tr>
-                        <th>사용 플랫폼</th>
-                        <td><strong>Voice:</strong> Discord / <strong>VTT:</strong> Foundry VTT (FvTT)</td>
-                    </tr>
-                    <tr>
-                        <th>캠페인 형태</th>
-                        <td>도시 괴담 추리 중심 조사극 / 위험도 높은 생존 탐사 (옴니버스 연작)</td>
-                    </tr>
-                    <tr>
-                        <th>권장 캐릭터</th>
-                        <td>특수이형재난관리국 현장대응팀 요원 (조사원, 현장 분석가, 행동대원 등)</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-
-        <!-- TAB 5: DOCUMENT TERMINAL (NEW) -->
+        <!-- TAB 4: DOCUMENT TERMINAL (NEW) -->
         <div id="tab-terminal" class="tab-content">
             <div class="terminal-card">
                 <div class="terminal-header">BHDM RESTRICTED ARCHIVE ACCESS</div>
