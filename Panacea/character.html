@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>크툴루의 부름 7판: 만병통치약 (Panacea) - 탐사자 선택</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0d1117;
+      --card-bg: #161b22;
+      --border-color: #30363d;
+      --text-main: #c9d1d9;
+      --text-muted: #8b949e;
+      --accent-gold: #d29922;
+      --accent-crimson: #f85149;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Noto Serif KR', serif;
+      line-height: 1.6;
+      padding: 2.5rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 2.5rem;
+      color: var(--accent-gold);
+      letter-spacing: 2px;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 12px rgba(210, 153, 34, 0.3);
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .character-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.8rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .character-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .character-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent-gold);
+      box-shadow: 0 8px 20px rgba(210, 153, 34, 0.2);
+    }
+
+    .card-img-wrap {
+      width: 100%;
+      height: 280px;
+      background: #090d13;
+      border-bottom: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+
+    .card-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      transition: transform 0.3s ease;
+    }
+
+    .character-card:hover .card-img-wrap img {
+      transform: scale(1.03);
+    }
+
+    .card-content {
+      padding: 1.2rem 1.4rem 1.4rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      justify-content: space-between;
+    }
+
+    .card-header {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.6rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .card-header h2 {
+      font-size: 1.25rem;
+      color: #f0f6fc;
+      margin-bottom: 0.2rem;
+    }
+
+    .card-header .job-tag {
+      font-size: 0.9rem;
+      color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    .card-body p {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      margin-bottom: 1.2rem;
+    }
+
+    .btn-detail {
+      align-self: flex-start;
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: 1px solid var(--accent-gold);
+      color: var(--accent-gold);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .character-card:hover .btn-detail {
+      background: var(--accent-gold);
+      color: #0d1117;
+    }
+
+    /* 모달 레이아웃 */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--accent-gold);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2rem;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      font-size: 1.8rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .modal-close:hover {
+      color: var(--accent-crimson);
+    }
+
+    .modal-header-layout {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.5rem;
+    }
+
+    .modal-img-wrap {
+      width: 130px;
+      height: 170px;
+      flex-shrink: 0;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      background: #090d13;
+    }
+
+    .modal-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    .modal-info-wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .modal-title {
+      font-size: 1.6rem;
+      color: var(--accent-gold);
+      margin-bottom: 0.3rem;
+    }
+
+    .modal-subtitle {
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+
+    /* 테이블 스타일 (능력치 및 기능 표) */
+    .stat-table, .skill-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-table th, .stat-table td,
+    .skill-table th, .skill-table td {
+      border: 1px solid var(--border-color);
+      padding: 0.45rem 0.6rem;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    .stat-table th, .skill-table th {
+      background: #21262d;
+      color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    .skill-table td.skill-name {
+      text-align: left;
+      font-weight: 600;
+      color: #f0f6fc;
+      background: #11151c;
+      width: 30%;
+    }
+
+    .skill-table td.skill-val {
+      color: var(--text-main);
+      width: 20%;
+    }
+
+    .bonus-note {
+      font-size: 0.85rem;
+      color: var(--accent-gold);
+      margin-top: -1rem;
+      margin-bottom: 1.5rem;
+      padding-left: 0.2rem;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      color: #f0f6fc;
+      margin: 1.4rem 0 0.6rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title::before {
+      content: "";
+      display: inline-block;
+      width: 4px;
+      height: 1rem;
+      background: var(--accent-gold);
+    }
+
+    .combat-box, .backstory-box {
+      font-size: 0.95rem;
+      background: #0d1117;
+      border: 1px solid var(--border-color);
+      padding: 1rem;
+      border-radius: 4px;
+      line-height: 1.7;
+      margin-bottom: 1.2rem;
+    }
+
+    /* 인물 관계 및 호버 툴팁 이미지 */
+    .relations-list {
+      list-style-type: none;
+      font-size: 0.92rem;
+      background: #0d1117;
+      border: 1px solid var(--border-color);
+      padding: 1rem 1.2rem;
+      border-radius: 4px;
+    }
+
+    .relations-list li {
+      margin-bottom: 0.8rem;
+      padding-left: 1.2rem;
+      position: relative;
+      line-height: 1.6;
+    }
+
+    .relations-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    .relations-list li::before {
+      content: "•";
+      color: var(--accent-gold);
+      position: absolute;
+      left: 0;
+    }
+
+    .person-hover {
+      color: var(--accent-gold);
+      font-weight: 700;
+      text-decoration: underline;
+      text-decoration-style: dotted;
+      cursor: pointer;
+      position: relative;
+      display: inline-block;
+    }
+
+    /* 툴팁 이미지 팝업 박스 */
+    .person-hover .tooltip-card {
+      visibility: hidden;
+      opacity: 0;
+      width: 140px;
+      background: #161b22;
+      border: 1px solid var(--accent-gold);
+      border-radius: 6px;
+      position: absolute;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 5px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.9);
+      z-index: 100;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+      pointer-events: none;
+      text-align: center;
+    }
+
+    .person-hover .tooltip-card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      object-position: top center;
+      border-radius: 4px;
+      display: block;
+    }
+
+    .person-hover .tooltip-card .tooltip-name {
+      font-size: 0.75rem;
+      color: #f0f6fc;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    /* 말풍선 꼬리 */
+    .person-hover .tooltip-card::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -6px;
+      border-width: 6px;
+      border-style: solid;
+      border-color: var(--accent-gold) transparent transparent transparent;
+    }
+
+    .person-hover:hover .tooltip-card {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    @media (max-width: 600px) {
+      .modal-header-layout {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .modal-img-wrap {
+        width: 140px;
+        height: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>만병통치약 (PANACEA)</h1>
+    <p>크툴루의 부름 7판 : 기적의 치료제 뒤편에 숨겨진 진실</p>
+  </header>
+
+  <!-- 탐사자 카드 목록 -->
+  <main class="character-grid">
+    <!-- 웨이드 보틀러 -->
+    <div class="character-card" onclick="openModal('wade')">
+      <div class="card-img-wrap">
+        <img src="./image/wade.png" alt="웨이드 보틀러" onerror="this.src='https://via.placeholder.com/300x400/161b22/d29922?text=웨이드'">
+      </div>
+      <div class="card-content">
+        <div class="card-header">
+          <h2>웨이드 보틀러</h2>
+          <span class="job-tag">54세 / 보안 컨설턴트</span>
+        </div>
+        <div class="card-body">
+          <p>자이메드바이오로부터 마리나 콜가를 감시하고 납치하라는 의뢰를 받았습니다. 불법 폭력에 회의감을 느끼고 그녀를 직접 설득하려 파티에 잠입합니다.</p>
+        </div>
+        <button class="btn-detail">상세 시트 및 배경 이야기 보기</button>
+      </div>
+    </div>
+
+    <!-- 마리나 콜가 -->
+    <div class="character-card" onclick="openModal('marina')">
+      <div class="card-img-wrap">
+        <img src="./image/marina.png" alt="마리나 콜가" onerror="this.src='https://via.placeholder.com/300x400/161b22/d29922?text=마리나'">
+      </div>
+      <div class="card-content">
+        <div class="card-header">
+          <h2>마리나 콜가</h2>
+          <span class="job-tag">29세 / 변호사</span>
+        </div>
+        <div class="card-body">
+          <p>자이메드바이오의 강제적인 '테스트 프로그램' 참여를 거부했다가 해고당했습니다. 이웃 척 오글이 임상 시험 대상자였다는 사실을 알고 파티에 찾아옵니다.</p>
+        </div>
+        <button class="btn-detail">상세 시트 및 배경 이야기 보기</button>
+      </div>
+    </div>
+
+    <!-- 메리 풀러 -->
+    <div class="character-card" onclick="openModal('mary')">
+      <div class="card-img-wrap">
+        <img src="./image/mary.png" alt="메리 풀러" onerror="this.src='https://via.placeholder.com/300x400/161b22/d29922?text=메리'">
+      </div>
+      <div class="card-content">
+        <div class="card-header">
+          <h2>메리 풀러</h2>
+          <span class="job-tag">44세 / 간호사</span>
+        </div>
+        <div class="card-body">
+          <p>당뇨병으로 다리를 절단했던 사촌 척 오글이 치료 후 갑작스레 보낸 파티 초대를 받았습니다. 경찰관 거스 필립스와 동행합니다.</p>
+        </div>
+        <button class="btn-detail">상세 시트 및 배경 이야기 보기</button>
+      </div>
+    </div>
+
+    <!-- 거스 필립스 -->
+    <div class="character-card" onclick="openModal('gus')">
+      <div class="card-img-wrap">
+        <img src="./image/gus.png" alt="거스 필립스" onerror="this.src='https://via.placeholder.com/300x400/161b22/d29922?text=거스'">
+      </div>
+      <div class="card-content">
+        <div class="card-header">
+          <h2>거스 필립스</h2>
+          <span class="job-tag">42세 / 경찰관</span>
+        </div>
+        <div class="card-body">
+          <p>자이메드바이오 주차장 폭행 사건 수사 중, 암에서 완치된 서장에 의해 사건이 강제 종결되었습니다. 진상을 캐내기 위해 메리의 데이트 상대로 참석합니다.</p>
+        </div>
+        <button class="btn-detail">상세 시트 및 배경 이야기 보기</button>
+      </div>
+    </div>
+
+    <!-- 벨린다 노리치 -->
+    <div class="character-card" onclick="openModal('belinda')">
+      <div class="card-img-wrap">
+        <img src="./image/belinda.png" alt="벨린다 노리치" onerror="this.src='https://via.placeholder.com/300x400/161b22/d29922?text=벨린다'">
+      </div>
+      <div class="card-content">
+        <div class="card-header">
+          <h2>벨린다 노리치</h2>
+          <span class="job-tag">42세 / 의사</span>
+        </div>
+        <div class="card-body">
+          <p>자신의 불치병(겸상 적혈구 빈혈증) 환자가 완치되었다고 하자 의학적 의구심을 품고, 비슷한 치료를 받은 척 오글의 파티에 무단으로 참석합니다.</p>
+        </div>
+        <button class="btn-detail">상세 시트 및 배경 이야기 보기</button>
+      </div>
+    </div>
+
+    <!-- 엘리엇 클로슨 -->
+    <div class="character-card" onclick="openModal('elliott')">
+      <div class="card-img-wrap">
+        <img src="./image/elliott.png" alt="엘리엇 클로슨" onerror="this.src='https://via.placeholder.com/300x400/161b22/d29922?text=엘리엇'">
+      </div>
+      <div class="card-content">
+        <div class="card-header">
+          <h2>엘리엇 클로슨</h2>
+          <span class="job-tag">32세 / 저널리스트</span>
+        </div>
+        <div class="card-body">
+          <p>자이메드바이오를 취재하던 중 에이즈로 투병하던 편집장이 그곳에서 완치되어 조사를 막아섭니다. 의문을 풀기 위해 척의 파티로 향합니다.</p>
+        </div>
+        <button class="btn-detail">상세 시트 및 배경 이야기 보기</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- 상세 정보 모달 -->
+  <div class="modal-overlay" id="charModal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModalDirect()">&times;</button>
+      
+      <div class="modal-header-layout">
+        <div class="modal-img-wrap">
+          <img id="m-img" src="" alt="캐릭터 이미지">
+        </div>
+        <div class="modal-info-wrap">
+          <h2 class="modal-title" id="m-name">캐릭터 이름</h2>
+          <div class="modal-subtitle" id="m-sub">나이 / 직업</div>
+        </div>
+      </div>
+
+      <div class="section-title">능력치</div>
+      <table class="stat-table" id="m-stats"></table>
+
+      <div class="section-title">전투</div>
+      <div class="combat-box" id="m-combat"></div>
+
+      <div class="section-title">주요 기능</div>
+      <table class="skill-table" id="m-skills"></table>
+      <div class="bonus-note">* 보너스: 플레이어가 원하는 기능에 40포인트를 자유롭게 배분하십시오.</div>
+
+      <div class="section-title">개인 배경 이야기</div>
+      <div class="backstory-box" id="m-backstory"></div>
+
+      <div class="section-title">주요 인물 관계 (이름에 커서를 올리면 사진이 표시됩니다)</div>
+      <ul class="relations-list" id="m-people"></ul>
+    </div>
+  </div>
+
+  <script>
+    // 인물별 프로필 썸네일 태그 생성 함수
+    function createHoverTag(name, imgPath, role) {
+      return `<span class="person-hover">
+                ${name} (${role})
+                <span class="tooltip-card">
+                  <img src="${imgPath}" alt="${name}" onerror="this.src='https://via.placeholder.com/140x140/21262d/d29922?text=${encodeURIComponent(name)}'">
+                  <div class="tooltip-name">${name}</div>
+                </span>
+              </span>`;
+    }
+
+    const characterData = {
+      wade: {
+        name: "웨이드 보틀러",
+        sub: "54세 | 보안 컨설턴트",
+        img: "./image/wade.png",
+        stats: [
+          ["근력", "80", "건강", "65", "크기", "55", "민첩성", "70"],
+          ["외모", "75", "지능", "85", "정신력", "70", "교육", "80"],
+          ["이성", "70", "체력", "12", "피해 보너스", "+1D4", "체구", "1"],
+          ["이동력", "7", "마력", "14", "행운", "45", "-", "-"]
+        ],
+        combat: "• <strong>전투 (근접전)</strong>: 50% (25/10), 피해 1D3+1D4<br>• <strong>.38 자동권총</strong>: 60% (30/12), 피해 1D10<br>• <strong>.30-06 볼트액션 소총</strong>: 50% (25/10), 피해 2D6+4<br>• <strong>회피</strong>: 40% (20/8)",
+        skills: [
+          ["오르기", "60% (30/12)", "컴퓨터 사용", "50% (25/10)"],
+          ["재력", "25% (12/5)", "말재주", "40% (20/8)"],
+          ["응급처치", "45% (22/9)", "위협", "45% (22/9)"],
+          ["도약", "50% (25/10)", "자료 조사", "45% (22/9)"],
+          ["듣기", "40% (20/8)", "열쇠공", "40% (20/8)"],
+          ["기계 수리", "35% (17/7)", "심리학", "45% (22/9)"],
+          ["관찰력", "45% (22/9)", "은밀행동", "40% (20/8)"],
+          ["수영", "50% (25/10)", "투척", "40% (20/8)"]
+        ],
+        backstory: "당신은 부사관으로 총 30년 동안 육군에서 복무했습니다. 전역 후, 정식 사설탐정 면허를 취득할 기회를 놓쳤기 때문에 스스로를 '보안 컨설턴트'라 칭하며 점차 민간 조사 분야로 발을 들였습니다. 당신의 어머니는 몇 년 전에 뇌졸중을 앓으신 후 현재 요양원에 계시며, 당신은 정기적으로 그곳을 방문하고 있습니다.<br><br>3주 전, 자이메드바이오라는 제약 회사가 마리나 콜가라는 전직 직원을 감시해 달라는 요청과 함께 23,000달러의 제안을 내걸고 당신을 고용했습니다. 콜가를 감시한 결과 평범한 삶을 살고 있다는 것을 알게 되었으나, 며칠 전 그들은 그녀를 '밤에 심문을 위해 데려오라'고 요구했습니다. 불법적인 폭력은 당신이 아직 넘을 준비가 되지 않은 선입니다. 콜가가 척 오글의 파티에 참석한다는 사실을 알아낸 당신은 그녀를 관찰하고 설득하여 자이메드바이오로 안전하게 동행할지 결정하기 위해 파티에 잠입합니다.",
+        people: [
+          `${createHoverTag("마리나 콜가", "./image/marina.png", "플레이어 탐사자")}: 자이메드바이오가 감시하라고 당신에게 맡긴 젊은 변호사. 다 자라 멀리 떠나간 딸을 떠올리게 합니다.`,
+          `${createHoverTag("거스 필립스", "./image/gus.png", "플레이어 탐사자")}: 경찰서를 방문할 때 몇 번 마주친 적이 있는 내근 경찰. 한 여성과 함께 파티에 와 있습니다.`,
+          `${createHoverTag("척 오글", "./image/chuck.png", "주요 인물")}: 파티를 주최하는 전직 자이메드바이오 환자.`,
+          `${createHoverTag("짐 코나티", "./image/conaty.png", "주요 인물")}: 당신의 자이메드바이오 담당 연락책인 부사장. 처음 악수할 때 남성성을 과시하듯 손을 으스러뜨리려 했던 찌질이.`,
+          `${createHoverTag("블랑슈 유르카", "./image/yurka.png", "주요 인물")}: 코나티의 개인 비서. 당신이 받은 이메일과 전화 통화의 대부분은 그녀로부터 온 것입니다.`
+        ]
+      },
+      marina: {
+        name: "마리나 콜가",
+        sub: "29세 | 변호사",
+        img: "./image/marina.png",
+        stats: [
+          ["근력", "45", "건강", "90", "크기", "60", "민첩성", "55"],
+          ["외모", "65", "지능", "65", "정신력", "65", "교육", "65"],
+          ["이성", "65", "체력", "15", "피해 보너스", "0", "체구", "0"],
+          ["이동력", "7", "마력", "13", "행운", "45", "-", "-"]
+        ],
+        combat: "• <strong>전투 (근접전)</strong>: 25% (12/5), 피해 1D3<br>• <strong>회피</strong>: 35% (17/7)",
+        skills: [
+          ["재력", "28% (14/5)", "말재주", "50% (25/10)"],
+          ["역사", "35% (17/7)", "법률", "85% (42/17)"],
+          ["자료 조사", "40% (20/8)", "듣기", "35% (17/7)"],
+          ["설득", "60% (30/12)", "심리학", "40% (20/8)"],
+          ["과학 (생물학)", "40% (20/8)", "관찰력", "45% (22/9)"],
+          ["은밀행동", "40% (20/8)", "수영", "55% (27/11)"],
+          ["투척", "45% (22/9)", "-", "-"]
+        ],
+        backstory: "할머니께서 치매를 앓고 계시며 어머니 역시 초기 증상을 보여 당신은 조발성 치매를 앓게 될까 깊이 두려워합니다. 6개월 전 로스쿨 졸업 후 자이메드바이오에 입사해 사내 법률 업무를 맡았습니다. 한 달 전, 회사가 '테스트 프로그램에 자발적으로 참여하라'고 강요하자 이를 거부했다가 즉시 해고당했습니다.<br><br>거리 아래쪽에 사는 척 오글이 자이메드바이오의 환자였다는 사실을 서류를 통해 알고 있던 당신은, 오늘 밤 그의 집에서 파티가 열린다는 것을 보고 무슨 일이 벌어지고 있었는지 알아내기 위해 무단으로 침입합니다.",
+        people: [
+          `${createHoverTag("짐 코나티", "./image/conaty.png", "주요 인물")}: 매일 2마일 달리기와 자전거 여행을 자랑하던 전직 상사이자 부사장.`,
+          `${createHoverTag("블랑슈 유르카", "./image/yurka.png", "주요 인물")}: 새를 닮았고 동작이 빠른 코나티의 개인 비서. 주로 그녀와 소통했습니다.`,
+          `${createHoverTag("척 오글", "./image/chuck.png", "주요 인물")}: 거리 아래쪽에 살며 실험적 치료를 받았던 이웃이자 파티 주최자.`
+        ]
+      },
+      mary: {
+        name: "메리 풀러",
+        sub: "44세 | 간호사",
+        img: "./image/mary.png",
+        stats: [
+          ["근력", "55", "건강", "75", "크기", "50", "민첩성", "75"],
+          ["외모", "55", "지능", "80", "정신력", "60", "교육", "75"],
+          ["이성", "60", "체력", "12", "피해 보너스", "0", "체구", "0"],
+          ["이동력", "8", "마력", "12", "행운", "45", "-", "-"]
+        ],
+        combat: "• <strong>전투 (근접전)</strong>: 35% (17/7), 피해 1D3<br>• <strong>회피</strong>: 35% (17/7)",
+        skills: [
+          ["매혹", "45% (22/9)", "오르기", "25% (12/5)"],
+          ["컴퓨터 사용", "70% (35/14)", "재력", "22% (11/4)"],
+          ["응급처치", "80% (40/16)", "도약", "30% (15/6)"],
+          ["자료 조사", "25% (12/5)", "듣기", "40% (20/8)"],
+          ["의료", "35% (17/7)", "정신분석", "30% (15/6)"],
+          ["심리학", "40% (20/8)", "과학 (생물학)", "50% (25/10)"],
+          ["과학 (약학)", "40% (20/8)", "관찰력", "30% (15/6)"],
+          ["은밀행동", "30% (15/6)", "투척", "30% (15/6)"]
+        ],
+        backstory: "시내 병원 응급실에서 근무하는 성실한 간호사입니다. 성인 발병 당뇨병으로 8개월 전에 무릎 아래 양쪽 다리를 절단했던 사촌 척 오글이 자이메드바이오에서 치료를 받은 뒤 자취를 감추었다가, 지난주 갑작스레 파티 초대 전화를 걸어왔습니다.<br><br>이 파티가 척이 죽기 전 마지막 작별 인사를 하려는 것이 아닐까 두려워진 당신은 참석을 결심했고, 가장 친한 친구의 남동생이자 경찰관인 거스 필립스가 동행을 요청하여 데이트 상대 자격으로 함께 참석합니다.",
+        people: [
+          `${createHoverTag("거스 필립스", "./image/gus.png", "플레이어 탐사자")}: 절친 시시의 남동생이자 오늘 파티에 데이트 상대로 동행한 경찰관.`,
+          `${createHoverTag("벨린다 노리치", "./image/belinda.png", "플레이어 탐사자")}: 근무하는 병원의 의사. 만성 질환 환자들을 담당합니다.`,
+          `${createHoverTag("척 오글", "./image/chuck.png", "주요 인물")}: 심하게 앓고 난 뒤 자이메드바이오에서 치료를 받은 사촌.`,
+          `${createHoverTag("시시 리처즈", "./image/sissy.png", "주요 인물")}: 15년 결혼 끝에 이혼 후 작은 꽃집을 운영하는 가장 친한 친구이자 거스의 누나.`
+        ]
+      },
+      gus: {
+        name: "거스 필립스",
+        sub: "42세 | 경찰관",
+        img: "./image/gus.png",
+        stats: [
+          ["근력", "70", "건강", "60", "크기", "65", "민첩성", "55"],
+          ["외모", "45", "지능", "70", "정신력", "70", "교육", "70"],
+          ["이성", "70", "체력", "12", "피해 보너스", "+1D4", "체구", "1"],
+          ["이동력", "7", "마력", "14", "행운", "45", "-", "-"]
+        ],
+        combat: "• <strong>전투 (근접전)</strong>: 45% (22/9), 피해 1D3+1D4<br>• <strong>.38 자동권총</strong>: 50% (25/10), 피해 1D10<br>• <strong>회피</strong>: 35% (17/7)",
+        skills: [
+          ["재력", "32% (16/6)", "자동차 운전", "50% (25/10)"],
+          ["말재주", "40% (20/8)", "응급처치", "30% (15/6)"],
+          ["위협", "45% (22/9)", "법률", "40% (20/8)"],
+          ["듣기", "45% (22/9)", "기계 수리", "40% (20/8)"],
+          ["항법", "40% (20/8)", "설득", "40% (20/8)"],
+          ["심리학", "40% (20/8)", "관찰력", "30% (15/6)"],
+          ["은밀행동", "40% (20/8)", "수영", "30% (15/6)"],
+          ["투척", "40% (20/8)", "-", "-"]
+        ],
+        backstory: "20년 차 베테랑 경찰관입니다. 자이메드바이오 주차장에서 짐승에게 뜯긴 듯한 상처를 입은 앤드루 루시오 폭행 사건을 조사하던 중, 말기 췌장암 치료 후 완치되어 돌아온 도슨 서장이 조사를 완전히 종결시키고 당신을 내근직으로 좌천시켰습니다.<br><br>누나의 친구인 메리 풀러가 자이메드바이오 치료를 받은 사촌 척의 파티에 간다는 이야기를 듣고, 서장의 눈을 피해 단서를 잡고자 그녀의 데이트 상대로 동행합니다.",
+        people: [
+          `${createHoverTag("메리 풀러", "./image/mary.png", "플레이어 탐사자")}: 누나의 친구이자 데이트 상대 자격으로 함께 온 전문 간호사.`,
+          `${createHoverTag("엘리엇 클로슨", "./image/elliott.png", "플레이어 탐사자")}: 과거에 몇 번 마주친 적 있는 탐사보도 신문 기자.`,
+          `${createHoverTag("웨이드 보틀러", "./image/wade.png", "플레이어 탐사자")}: 면허 취득 문제로 경찰서에서 마주친 적 있는 무면허 조사관.`,
+          `${createHoverTag("도슨 서장", "./image/dawson.png", "주요 인물")}: 말기 췌장암 완치 후 수상한 행동을 보이며 사건을 덮어버린 직속 상관.`,
+          `${createHoverTag("척 오글", "./image/chuck.png", "주요 인물")}: 치료를 받았던 메리의 사촌이자 파티 주최자.`,
+          `${createHoverTag("시시 리처즈", "./image/sissy.png", "주요 인물")}: 작은 꽃집을 운영하는 당신의 누나.`
+        ]
+      },
+      belinda: {
+        name: "벨린다 노리치",
+        sub: "42세 | 의사",
+        img: "./image/belinda.png",
+        stats: [
+          ["근력", "45", "건강", "40", "크기", "55", "민첩성", "70"],
+          ["외모", "75", "지능", "70", "정신력", "70", "교육", "90"],
+          ["이성", "70", "체력", "9", "피해 보너스", "0", "체구", "0"],
+          ["이동력", "7", "마력", "14", "행운", "45", "-", "-"]
+        ],
+        combat: "• <strong>전투 (근접전)</strong>: 25% (12/5), 피해 1D3<br>• <strong>회피</strong>: 35% (17/7)",
+        skills: [
+          ["매혹", "40% (20/8)", "재력", "36% (18/7)"],
+          ["응급처치", "65% (32/13)", "법률", "25% (12/5)"],
+          ["자료 조사", "35% (17/7)", "듣기", "35% (17/7)"],
+          ["의료", "75% (37/15)", "설득", "40% (20/8)"],
+          ["심리학", "40% (20/8)", "과학 (생물학)", "45% (22/9)"],
+          ["과학 (화학)", "55% (27/11)", "과학 (약학)", "50% (25/10)"],
+          ["관찰력", "45% (22/9)", "은밀행동", "30% (15/6)"],
+          ["투척", "30% (15/6)", "-", "-"]
+        ],
+        backstory: "대형 병원에서 근무하며 겸상 적혈구 빈혈증(SCD)을 연구하는 이상주의적 의사입니다. 불치병인 SCD 환자가 자이메드바이오에서 무료 치료를 받고 '완치'되었다며 나타나자, 지속적인 투약도 없이 완치되었다는 의학적 상식 밖의 사실에 큰 호기심과 의심을 품었습니다.<br><br>동료 간호사인 메리 풀러의 사촌(척 오글)이 비슷한 치료를 받고 파티를 연다는 사실을 듣고, 그 치료법에 대한 사실을 수집하기 위해 파티에 무단으로 참석합니다.",
+        people: [
+          `${createHoverTag("메리 풀러", "./image/mary.png", "플레이어 탐사자")}: 같은 병원의 응급실 간호사이자 파티 주최자의 사촌.`,
+          `${createHoverTag("척 오글", "./image/chuck.png", "주요 인물")}: 위독한 상태에서 치료 후 기적적으로 회복하여 파티를 연 주최자.`
+        ]
+      },
+      elliott: {
+        name: "엘리엇 클로슨",
+        sub: "32세 | 저널리스트",
+        img: "./image/elliott.png",
+        stats: [
+          ["근력", "60", "건강", "75", "크기", "80", "민첩성", "55"],
+          ["외모", "70", "지능", "65", "정신력", "70", "교육", "85"],
+          ["이성", "70", "체력", "15", "피해 보너스", "+1D4", "체구", "1"],
+          ["이동력", "7", "마력", "14", "행운", "45", "-", "-"]
+        ],
+        combat: "• <strong>전투 (근접전)</strong>: 35% (17/7), 피해 1D3+1D4<br>• <strong>회피</strong>: 35% (17/7)",
+        skills: [
+          ["예술/공예 (사진)", "60% (30/12)", "컴퓨터 사용", "60% (30/12)"],
+          ["재력", "26% (13/5)", "전자기기", "45% (22/9)"],
+          ["말재주", "65% (32/13)", "도약", "40% (20/8)"],
+          ["자료 조사", "55% (27/11)", "듣기", "30% (15/6)"],
+          ["열쇠공", "20% (10/4)", "설득", "65% (32/13)"],
+          ["심리학", "50% (25/10)", "관찰력", "40% (20/8)"],
+          ["은밀행동", "35% (17/7)", "투척", "35% (17/7)"]
+        ],
+        backstory: "신문사 탐사보도 기자입니다. 판매 제품도 명확한 수입원도 없는 비밀스러운 기업 자이메드바이오를 파헤치던 중, 에이즈로 투병하던 편집장 앤서니가 자이메드바이오 치료 후 완전히 관해 상태에 이르러 돌아와 조사를 즉시 중단하라고 단호히 명령했습니다.<br><br>거대한 의구심을 품은 당신은 과거 전화로 인터뷰했던 환자 척 오글의 파티 초대장을 받았고, 편집장의 지시를 어기지 않으면서도 정보를 캐낼 절호의 기회로 삼아 파티에 참석합니다.",
+        people: [
+          `${createHoverTag("앤서니 캘리슨", "./image/callison.png", "주요 인물")}: 에이즈 완치 후 회사를 감싸며 조사를 가로막는 신문사 편집장.`,
+          `${createHoverTag("거스 필립스", "./image/gus.png", "플레이어 탐사자")}: 취재 과정에서 몇 번 마주쳤던 경찰관.`,
+          `${createHoverTag("척 오글", "./image/chuck.png", "주요 인물")}: 과거 전화로 인터뷰했던 자이메드바이오 환자.`
+        ]
+      }
+    };
+
+    function openModal(charKey) {
+      const data = characterData[charKey];
+      if (!data) return;
+
+      document.getElementById('m-img').src = data.img;
+      document.getElementById('m-name').innerText = data.name;
+      document.getElementById('m-sub').innerText = data.sub;
+
+      // 능력치 테이블 생성
+      let statHtml = "";
+      data.stats.forEach(row => {
+        statHtml += "<tr>";
+        for (let i = 0; i < row.length; i += 2) {
+          statHtml += `<th>${row[i]}</th><td>${row[i+1]}</td>`;
+        }
+        statHtml += "</tr>";
+      });
+      document.getElementById('m-stats').innerHTML = statHtml;
+
+      document.getElementById('m-combat').innerHTML = data.combat;
+
+      // 주요 기능 2열 테이블 생성
+      let skillHtml = "<tr><th>기능명</th><th>성공률 (보통/어려움/극단)</th><th>기능명</th><th>성공률 (보통/어려움/극단)</th></tr>";
+      data.skills.forEach(row => {
+        skillHtml += "<tr>";
+        skillHtml += `<td class="skill-name">${row[0]}</td><td class="skill-val">${row[1]}</td>`;
+        skillHtml += `<td class="skill-name">${row[2]}</td><td class="skill-val">${row[3]}</td>`;
+        skillHtml += "</tr>";
+      });
+      document.getElementById('m-skills').innerHTML = skillHtml;
+
+      document.getElementById('m-backstory').innerHTML = data.backstory;
+
+      // 인물 관계 목록 생성 (툴팁 포함)
+      let peopleHtml = "";
+      data.people.forEach(p => {
+        peopleHtml += `<li>${p}</li>`;
+      });
+      document.getElementById('m-people').innerHTML = peopleHtml;
+
+      document.getElementById('charModal').style.display = 'flex';
+    }
+
+    function closeModal(e) {
+      if (e.target.id === 'charModal') {
+        document.getElementById('charModal').style.display = 'none';
+      }
+    }
+
+    function closeModalDirect() {
+      document.getElementById('charModal').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
