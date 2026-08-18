@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>아카이브 도서관 서고</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+KR:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --wood-dark: #1b120c;
+      --wood-main: #2e1d13;
+      --wood-shelf: #422a1d;
+      --paper-bg: #f4efe6;
+      --paper-card: #fdfbf7;
+      --accent-gold: #c59b27;
+      --accent-crimson: #8b1e1e;
+      --text-main: #2b2621;
+      --text-muted: #6e655f;
+      --border-color: #dcd3c3;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Serif KR', serif;
+      background-color: var(--paper-bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding-bottom: 80px;
+    }
+
+    /* 상단 헤더 */
+    header {
+      background-color: var(--wood-main);
+      color: #fff;
+      padding: 40px 20px;
+      text-align: center;
+      border-bottom: 4px solid var(--accent-gold);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 2.2rem;
+      letter-spacing: 3px;
+      color: var(--paper-bg);
+      margin-bottom: 6px;
+    }
+
+    header p {
+      font-size: 0.95rem;
+      color: var(--accent-gold);
+      font-weight: 300;
+    }
+
+    /* 컨테이너 */
+    .container {
+      max-width: 1150px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    /* 서가 안내 툴바 */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    .shelf-info {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .shelf-info strong {
+      color: var(--wood-main);
+    }
+
+    /* 도서 목록 그리드 */
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 25px;
+    }
+
+    /* 도서 카드 */
+    .book-card {
+      background: var(--paper-card);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 12px rgba(46, 29, 19, 0.06);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .book-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 22px rgba(46, 29, 19, 0.15);
+      border-color: var(--accent-gold);
+    }
+
+    .card-top {
+      display: flex;
+      height: 160px;
+      background-color: #eae3d2;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .book-cover-wrap {
+      width: 115px;
+      height: 100%;
+      flex-shrink: 0;
+      overflow: hidden;
+      background-color: #2e1d13;
+    }
+
+    .book-cover-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-meta {
+      padding: 12px 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-grow: 1;
+    }
+
+    .call-number {
+      font-size: 0.75rem;
+      font-family: monospace;
+      color: var(--wood-main);
+      background: #e2d7c3;
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      align-self: flex-start;
+      font-weight: 700;
+    }
+
+    .genre-tag {
+      font-size: 0.75rem;
+      color: var(--accent-crimson);
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--wood-dark);
+      line-height: 1.3;
+      margin-top: 4px;
+    }
+
+    .card-author {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .card-body {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-grow: 1;
+    }
+
+    .card-summary {
+      font-size: 0.85rem;
+      color: #4a433d;
+      line-height: 1.5;
+      margin-bottom: 15px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .btn-read {
+      padding: 7px 12px;
+      background: transparent;
+      border: 1px solid var(--accent-gold);
+      color: var(--wood-main);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 3px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .book-card:hover .btn-read {
+      background: var(--accent-gold);
+      color: #fff;
+    }
+
+    /* 본문 열람 모달 (책 펼침 연출) */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 10, 7, 0.75);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    .modal-book {
+      background: #faf6ee;
+      border: 2px solid var(--wood-main);
+      border-radius: 6px;
+      width: 100%;
+      max-width: 800px;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 2.5rem;
+      position: relative;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      background-image: radial-gradient(#ece3d0 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      font-size: 2rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: var(--accent-crimson);
+    }
+
+    .modal-header {
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-call-number {
+      font-size: 0.85rem;
+      font-family: monospace;
+      color: var(--accent-crimson);
+      font-weight: 700;
+    }
+
+    .modal-title {
+      font-size: 1.6rem;
+      color: var(--wood-dark);
+      margin: 0.3rem 0;
+    }
+
+    .modal-meta {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* 책 본문 발췌 상자 (양피지/책 페이지 느낌) */
+    .page-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--wood-main);
+      margin: 1.5rem 0 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .page-section-title::before {
+      content: "📖";
+      font-size: 0.9rem;
+    }
+
+    .book-page {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--wood-shelf);
+      padding: 1.5rem;
+      border-radius: 4px;
+      font-size: 0.98rem;
+      line-height: 1.8;
+      color: #222;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+      margin-bottom: 1.5rem;
+      white-space: pre-line;
+      word-break: keep-all;
+    }
+
+    /* 조사 단서/메모 상자 */
+    .investigation-note {
+      background: #fdf8e2;
+      border: 1px dashed var(--accent-gold);
+      border-radius: 4px;
+      padding: 1rem 1.2rem;
+      font-size: 0.9rem;
+      color: #5c4b18;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>ARCHIVE LIBRARY</h1>
+    <p>열람 가능한 일반 도서 및 수집 문헌 목록</p>
+  </header>
+
+  <div class="container">
+    <div class="toolbar">
+      <div class="shelf-info">총 소장 도서: <strong id="book-count">0</strong>권</div>
+    </div>
+
+    <main class="book-grid" id="book-grid">
+      <div style="text-align:center; grid-column:1/-1; padding:40px; color:var(--text-muted);">
+        도서 데이터를 불러오는 중입니다...
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="readModal" onclick="closeReadModal(event)">
+    <div class="modal-content modal-book" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeReadModalDirect()">&times;</button>
+      
+      <div class="modal-header">
+        <div class="modal-call-number" id="m-callNumber">청구기호</div>
+        <h2 class="modal-title" id="m-title">도서 제목</h2>
+        <div class="modal-meta" id="m-meta">저자 / 출판연도 / 출판사</div>
+      </div>
+
+      <div class="page-section-title">주요 발췌 내용 (본문)</div>
+      <div class="book-page" id="m-excerpt"></div>
+
+      <div class="investigation-note" id="m-notes"></div>
+    </div>
+  </div>
+
+  <script>
+    let booksData = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadBooks();
+    });
+
+    async function loadBooks() {
+      const grid = document.getElementById("book-grid");
+      const countEl = document.getElementById("book-count");
+
+      try {
+        const res = await fetch("books.json");
+        if (!res.ok) throw new Error("JSON 로드 실패");
+        
+        booksData = await res.json();
+        countEl.textContent = booksData.length;
+        grid.innerHTML = "";
+
+        booksData.forEach((book, idx) => {
+          const card = document.createElement("article");
+          card.className = "book-card";
+          card.onclick = () => openBook(idx);
+
+          card.innerHTML = `
+            <div class="card-top">
+              <div class="book-cover-wrap">
+                <img src="${book.cover}" alt="${book.title} 표지" loading="lazy">
+              </div>
+              <div class="card-meta">
+                <div>
+                  <span class="call-number">${book.callNumber}</span>
+                  <div class="genre-tag">${book.genre}</div>
+                  <h3 class="card-title">${book.title}</h3>
+                </div>
+                <div class="card-author">${book.author}</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <p class="card-summary">${book.summary}</p>
+              <button class="btn-read">📖 책 펼쳐보기 (내용 열람)</button>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+
+      } catch (err) {
+        console.error(err);
+        grid.innerHTML = `
+          <div style="text-align:center; grid-column:1/-1; padding:40px; color:var(--accent-crimson);">
+            도서 데이터를 읽어올 수 없습니다.<br>
+            <small style="color:var(--text-muted);">(VS Code의 Live Server나 간이 웹서버 환경에서 실행해 주세요.)</small>
+          </div>
+        `;
+      }
+    }
+
+    // 모달 열기
+    function openBook(index) {
+      const book = booksData[index];
+      if (!book) return;
+
+      document.getElementById("m-callNumber").textContent = `청구기호: ${book.callNumber} [${book.genre}]`;
+      document.getElementById("m-title").textContent = book.title;
+      document.getElementById("m-meta").textContent = `${book.author} 著 · ${book.publisher} (${book.year}년 간행)`;
+      document.getElementById("m-excerpt").innerHTML = book.excerpt;
+      document.getElementById("m-notes").innerHTML = book.notes;
+
+      document.getElementById("readModal").style.display = "flex";
+    }
+
+    function closeReadModal(e) {
+      if (e.target.id === "readModal") {
+        document.getElementById("readModal").style.display = "none";
+      }
+    }
+
+    function closeReadModalDirect() {
+      document.getElementById("readModal").style.display = "none";
+    }
+  </script>
+</body>
+</html>
