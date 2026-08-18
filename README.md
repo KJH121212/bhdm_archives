@@ -2,5 +2,6 @@
 https://KJH121212.github.io/bhdm_archives/portal.html
 
 # Panacea
-website : https://KJH121212.github.io/bhdm_archives/Panacea/zymedbio_website.html
+character : https://KJH121212.github.io/bhdm_archives/Panacea/character.html  
+website : https://KJH121212.github.io/bhdm_archives/Panacea/zymedbio_website.html  
 hacking : https://KJH121212.github.io/bhdm_archives/Panacea/zymedbio_inside.html
