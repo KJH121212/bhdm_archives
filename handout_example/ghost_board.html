@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>De Vermis - 심령 오이지 보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Nanum+Myeongjo:wght@700&display=swap" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #080605;
+    color: #e5e7eb;
+    font-family: 'Nanum Myeongjo', serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px 10px;
+    margin: 0;
+    user-select: none;
+  }
+
+  .instructions {
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #d97706;
+    letter-spacing: 1px;
+  }
+
+  /* 메인 오이지 보드 목재 판 */
+  .board-container {
+    position: relative;
+    width: 720px;
+    height: 440px;
+    background: #2a170c;
+    border: 8px solid #140a05;
+    border-radius: 12px;
+    padding: 25px 35px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.95), inset 0 0 50px rgba(0,0,0,0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+
+  /* 보드 테두리 장식 문양 */
+  .board-corner {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border: 2px solid #8c532b;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .c-tl { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+  .c-tr { top: 12px; right: 12px; border-left: none; border-bottom: none; }
+  .c-bl { bottom: 12px; left: 12px; border-right: none; border-top: none; }
+  .c-br { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+
+  /* 상단 YES / NO & 태양/달 */
+  .board-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 22px;
+    color: #d4a373;
+    letter-spacing: 4px;
+  }
+
+  .ouija-title {
+    font-size: 26px;
+    color: #eedcb8;
+    text-shadow: 0 0 10px rgba(212, 163, 115, 0.3);
+  }
+
+  /* 알파벳 아크 (A-Z) */
+  .alphabet-rows {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0;
+  }
+
+  .letter-row {
+    display: flex;
+    gap: 16px;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 19px;
+    color: #d4a373;
+    font-weight: bold;
+  }
+
+  .char-cell {
+    width: 22px;
+    text-align: center;
+    transition: color 0.2s, text-shadow 0.2s;
+  }
+
+  .char-cell.glow {
+    color: #fef08a !important;
+    text-shadow: 0 0 12px #facc15, 0 0 20px #eab308 !important;
+  }
+
+  /* 숫자 열 (0-9) */
+  .number-row {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 17px;
+    color: #a67c52;
+  }
+
+  .board-bottom {
+    text-align: center;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 20px;
+    color: #d4a373;
+    letter-spacing: 6px;
+  }
+
+  /* 이동하는 목재 플랑셰트 (지침) */
+  .planchette {
+    position: absolute;
+    width: 60px;
+    height: 75px;
+    background: radial-gradient(circle at center, #5c3317 0%, #301708 100%);
+    border: 2px solid #a67c52;
+    border-radius: 30px 30px 10px 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.8), 0 0 15px rgba(234, 179, 8, 0.2);
+    transform: translate(-50%, -50%);
+    top: 220px;
+    left: 360px;
+    transition: top 0.6s cubic-bezier(0.25, 1, 0.5, 1), left 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* 플랑셰트 투시 구멍 */
+  .planchette-hole {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #eedcb8;
+    border-radius: 50%;
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.8), 0 0 8px #facc15;
+  }
+
+  /* 하단 질문 덱 및 영독 로그 패널 */
+  .console-panel {
+    width: 720px;
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .question-bar {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+  }
+
+  .btn-ask {
+    flex: 1;
+    background: #2a150c;
+    color: #fde68a;
+    border: 1.5px solid #78350f;
+    padding: 10px 12px;
+    font-size: 12.5px;
+    font-family: inherit;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 0 #150904;
+  }
+
+  .btn-ask:hover:not(:disabled) {
+    background: #78350f;
+    color: #fff;
+    border-color: #f59e0b;
+  }
+
+  .btn-ask:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* 영독 모니터 스크린 */
+  .spirit-log-box {
+    background: #100b08;
+    border: 2px solid #5c3317;
+    border-radius: 6px;
+    padding: 15px 20px;
+    min-height: 90px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+  }
+
+  .spirit-message {
+    font-size: 14px;
+    color: #fef08a;
+    line-height: 1.6;
+    letter-spacing: 1px;
+  }
+
+  .btn-copy {
+    background: #7f1d1d;
+    color: #fecaca;
+    border: 1.5px solid #ef4444;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    display: none;
+    transition: all 0.2s ease;
+  }
+
+  .btn-copy:hover {
+    background: #dc2626;
+    color: #fff;
+    box-shadow: 0 0 10px #ef4444;
+  }
+</style>
+</head>
+<body>
+
+<div class="instructions">
+  [!] 영혼에게 던질 질문을 선택하십시오. 플랑셰트가 진실을 철자화합니다.
+</div>
+
+<div class="board-container" id="ouijaBoard">
+  <div class="board-corner c-tl"></div>
+  <div class="board-corner c-tr"></div>
+  <div class="board-corner c-bl"></div>
+  <div class="board-corner c-br"></div>
+
+  <!-- 상단 YES / NO -->
+  <div class="board-top">
+    <span class="char-cell" id="c-YES" style="width:auto;">YES</span>
+    <span class="ouija-title">O U I J A</span>
+    <span class="char-cell" id="c-NO" style="width:auto;">NO</span>
+  </div>
+
+  <!-- 알파벳 A-Z -->
+  <div class="alphabet-rows">
+    <div class="letter-row">
+      <span class="char-cell" id="c-A">A</span>
+      <span class="char-cell" id="c-B">B</span>
+      <span class="char-cell" id="c-C">C</span>
+      <span class="char-cell" id="c-D">D</span>
+      <span class="char-cell" id="c-E">E</span>
+      <span class="char-cell" id="c-F">F</span>
+      <span class="char-cell" id="c-G">G</span>
+      <span class="char-cell" id="c-H">H</span>
+      <span class="char-cell" id="c-I">I</span>
+      <span class="char-cell" id="c-J">J</span>
+      <span class="char-cell" id="c-K">K</span>
+      <span class="char-cell" id="c-L">L</span>
+      <span class="char-cell" id="c-M">M</span>
+    </div>
+    <div class="letter-row">
+      <span class="char-cell" id="c-N">N</span>
+      <span class="char-cell" id="c-O">O</span>
+      <span class="char-cell" id="c-P">P</span>
+      <span class="char-cell" id="c-Q">Q</span>
+      <span class="char-cell" id="c-R">R</span>
+      <span class="char-cell" id="c-S">S</span>
+      <span class="char-cell" id="c-T">T</span>
+      <span class="char-cell" id="c-U">U</span>
+      <span class="char-cell" id="c-V">V</span>
+      <span class="char-cell" id="c-W">W</span>
+      <span class="char-cell" id="c-X">X</span>
+      <span class="char-cell" id="c-Y">Y</span>
+      <span class="char-cell" id="c-Z">Z</span>
+    </div>
+  </div>
+
+  <!-- 숫자 0-9 -->
+  <div class="number-row">
+    <span class="char-cell" id="c-1">1</span>
+    <span class="char-cell" id="c-2">2</span>
+    <span class="char-cell" id="c-3">3</span>
+    <span class="char-cell" id="c-4">4</span>
+    <span class="char-cell" id="c-5">5</span>
+    <span class="char-cell" id="c-6">6</span>
+    <span class="char-cell" id="c-7">7</span>
+    <span class="char-cell" id="c-8">8</span>
+    <span class="char-cell" id="c-9">9</span>
+    <span class="char-cell" id="c-0">0</span>
+  </div>
+
+  <!-- 하단 GOOD BYE -->
+  <div class="board-bottom">
+    <span class="char-cell" id="c-BYE" style="width:auto;">GOOD BYE</span>
+  </div>
+
+  <!-- 움직이는 플랑셰트 -->
+  <div class="planchette" id="planchette">
+    <div class="planchette-hole"></div>
+  </div>
+</div>
+
+<!-- 질문 콘솔 및 영독 기록창 -->
+<div class="console-panel">
+  <div class="question-bar">
+    <button class="btn-ask" onclick="askQuestion(0)">Q1. 서장을 조종하는 배후는?</button>
+    <button class="btn-ask" onclick="askQuestion(1)">Q2. 지하실 밀실의 잠금 번호는?</button>
+    <button class="btn-ask" onclick="askQuestion(2)">Q3. 우리가 살아서 나갈 수 있는가?</button>
+  </div>
+
+  <div class="spirit-log-box">
+    <div class="spirit-message" id="spiritMessage">
+      [접신 대기] 촛불이 흔들립니다. 영혼에게 질문을 던지십시오...
+    </div>
+    <button class="btn-copy" id="copyBtn">📋 영독 기록 복사</button>
+  </div>
+</div>
+
+<script>
+  const planchette = document.getElementById('planchette');
+  const spiritMessage = document.getElementById('spiritMessage');
+  const copyBtn = document.getElementById('copyBtn');
+  const board = document.getElementById('ouijaBoard');
+  const buttons = document.querySelectorAll('.btn-ask');
+
+  let isSpelling = false;
+  let audioCtx = null;
+
+  // 질문별 응답 데이터 (철자 배열 + 해석문)
+  const qData = [
+    {
+      sequence: ['S', 'H', 'U', 'B', 'N', 'I', 'G'],
+      text: "영독 결과: [ S - H - U - B - N - I - G ]\n'검은 염소의 어미... 슈브-니구라스가 그의 피를 취했다.'"
+    },
+    {
+      sequence: ['6', '3', '0', '8'],
+      text: "영독 결과: [ 6 - 3 - 0 - 8 ]\n'지하 3층 밀실 금고의 잠금 해제 암호이다.'"
+    },
+    {
+      sequence: ['N', 'O', 'BYE'],
+      text: "영독 결과: [ N - O - GOOD BYE ]\n'모두 제단의 거름이 되리라...'"
+    }
+  ];
+
+  // 플랑셰트 마찰음/공명 효과 (Web Audio API)
+  function playWoodFriction() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(140, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.3);
+    } catch(e) {}
+  }
+
+  async function askQuestion(idx) {
+    if (isSpelling) return;
+    isSpelling = true;
+    buttons.forEach(b => b.disabled = true);
+    copyBtn.style.display = 'none';
+
+    const data = qData[idx];
+    spiritMessage.innerHTML = `<span style="color:#a8a29e;">영혼이 플랑셰트를 움직입니다...</span>`;
+
+    const boardRect = board.getBoundingClientRect();
+
+    for (let char of data.sequence) {
+      const cell = document.getElementById(`c-${char}`);
+      if (cell) {
+        const cellRect = cell.getBoundingClientRect();
+        const targetX = cellRect.left - boardRect.left + cellRect.width / 2;
+        const targetY = cellRect.top - boardRect.top + cellRect.height / 2 + 18; // 플랑셰트 구멍 위치 보정
+
+        planchette.style.left = `${targetX}px`;
+        planchette.style.top = `${targetY}px`;
+        playWoodFriction();
+
+        await new Promise(r => setTimeout(r, 650));
+        cell.classList.add('glow');
+        await new Promise(r => setTimeout(r, 450));
+        cell.classList.remove('glow');
+      }
+    }
+
+    // 중앙 복귀
+    planchette.style.left = `360px`;
+    planchette.style.top = `220px`;
+    await new Promise(r => setTimeout(r, 400));
+
+    spiritMessage.innerHTML = data.text.replace(/\n/g, '<br>');
+    copyBtn.style.display = 'block';
+
+    buttons.forEach(b => b.disabled = false);
+    isSpelling = false;
+  }
+
+  // 복사 기능
+  copyBtn.addEventListener('click', () => {
+    const textToCopy = `[오이지 보드 강령회 영독 기록]\n${spiritMessage.innerText}`;
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      const origin = copyBtn.innerText;
+      copyBtn.innerText = "✓ 복사 완료!";
+      copyBtn.style.background = "#22c55e";
+      copyBtn.style.color = "#000";
+
+      setTimeout(() => {
+        copyBtn.innerText = origin;
+        copyBtn.style.background = "#7f1d1d";
+        copyBtn.style.color = "#fecaca";
+      }, 1500);
+    });
+  });
+</script>
+
+</body>
+</html>

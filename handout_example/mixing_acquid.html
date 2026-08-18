@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>ZyMedBio - 생체 화학 분석기</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #0b0f0d;
+    color: #e5e7eb;
+    font-family: 'Georgia', serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px 10px;
+    margin: 0;
+    user-select: none;
+  }
+
+  .instructions {
+    margin-bottom: 15px;
+    font-size: 13px;
+    color: #4ade80;
+    font-family: monospace;
+    letter-spacing: 1px;
+  }
+
+  /* 메인 실험실 컨테이너 */
+  .lab-bench {
+    width: 640px;
+    background: #18201b;
+    border: 3px solid #2d3b32;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  /* 상단 시약 선택 선반 */
+  .shelf {
+    display: flex;
+    gap: 20px;
+    background: #101613;
+    padding: 15px 25px;
+    border-radius: 6px;
+    border: 1px solid #25332a;
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .reagent-bottle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+
+  .reagent-bottle:hover {
+    transform: translateY(-4px);
+  }
+
+  .reagent-bottle:active {
+    transform: scale(0.95);
+  }
+
+  /* 플라스크 그래픽 */
+  .flask-icon {
+    width: 44px;
+    height: 60px;
+    border: 2px solid #9ca3af;
+    border-radius: 4px 4px 18px 18px;
+    position: relative;
+    overflow: hidden;
+    background: rgba(255,255,255,0.05);
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+  }
+
+  .flask-fluid {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70%;
+    transition: background 0.3s;
+  }
+
+  .fluid-a { background: #3b82f6; box-shadow: 0 0 10px #2563eb; }
+  .fluid-b { background: #ef4444; box-shadow: 0 0 10px #dc2626; }
+  .fluid-c { background: #eab308; box-shadow: 0 0 10px #ca8a04; }
+
+  .bottle-label {
+    font-size: 11px;
+    font-family: monospace;
+    font-weight: bold;
+    color: #9ca3af;
+  }
+
+  /* 중앙 합성 비커 반응 영역 */
+  .reaction-area {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .beaker-container {
+    position: relative;
+    width: 120px;
+    height: 150px;
+    border: 3px solid #9ca3af;
+    border-top: none;
+    border-radius: 0 0 20px 20px;
+    background: rgba(255,255,255,0.02);
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.6), 0 0 10px rgba(0,0,0,0.5);
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .beaker-liquid {
+    width: 100%;
+    height: 0%;
+    background: #4b5563;
+    transition: height 0.4s ease, background 0.5s ease, box-shadow 0.5s ease;
+    position: relative;
+  }
+
+  /* 비커 눈금 */
+  .scale-marks {
+    position: absolute;
+    left: 6px;
+    top: 15px;
+    bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+  .mark { width: 10px; height: 1.5px; background: #6b7280; }
+
+  /* 기포 애니메이션 */
+  .bubble {
+    position: absolute;
+    bottom: 0;
+    width: 6px;
+    height: 6px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 50%;
+    animation: rise 1s infinite ease-in;
+  }
+
+  @keyframes rise {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-70px); opacity: 0; }
+  }
+
+  /* 실시간 분석 상태창 */
+  .status-monitor {
+    width: 320px;
+    background: #0a0e0c;
+    border: 1.5px solid #22c55e;
+    border-radius: 4px;
+    padding: 15px;
+    font-family: monospace;
+    font-size: 13px;
+    color: #4ade80;
+    box-shadow: inset 0 0 10px rgba(34, 197, 94, 0.15);
+  }
+
+  .btn-reset {
+    margin-top: 10px;
+    background: #374151;
+    color: #fff;
+    border: 1px solid #4b5563;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-family: monospace;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+  .btn-reset:hover { background: #4b5563; }
+
+  /* 하단 복원 완료 및 복사창 */
+  .result-box {
+    width: 100%;
+    background: #04250f;
+    border: 2px solid #4ade80;
+    border-radius: 6px;
+    padding: 15px 20px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .result-title {
+    color: #86efac;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 13.5px;
+  }
+
+  .btn-copy {
+    background: #166534;
+    color: #fff;
+    border: 1px solid #4ade80;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-family: monospace;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-copy:hover { background: #22c55e; color: #000; }
+
+  .result-content {
+    color: #cbd5e1;
+    font-size: 13.5px;
+    line-height: 1.6;
+    background: rgba(0,0,0,0.3);
+    padding: 12px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="instructions">
+  [!] 시약 병을 클릭하여 비커에 투입하십시오. (정답 배합: A 용액 2회 + C 용액 1회)
+</div>
+
+<div class="lab-bench">
+  <!-- 상단 시약 선택 선반 -->
+  <div class="shelf">
+    <div class="reagent-bottle" onclick="addDrop('A')">
+      <div class="flask-icon"><div class="flask-fluid fluid-a"></div></div>
+      <span class="bottle-label">[A] 리간드 침전제</span>
+    </div>
+
+    <div class="reagent-bottle" onclick="addDrop('B')">
+      <div class="flask-icon"><div class="flask-fluid fluid-b"></div></div>
+      <span class="bottle-label">[B] 유기 페놀 원액</span>
+    </div>
+
+    <div class="reagent-bottle" onclick="addDrop('C')">
+      <div class="flask-icon"><div class="flask-fluid fluid-c"></div></div>
+      <span class="bottle-label">[C] 신경 안정 촉매</span>
+    </div>
+  </div>
+
+  <!-- 중앙 반응대 -->
+  <div class="reaction-area">
+    <!-- 비커 -->
+    <div class="beaker-container">
+      <div class="scale-marks">
+        <div class="mark"></div>
+        <div class="mark"></div>
+        <div class="mark"></div>
+        <div class="mark"></div>
+      </div>
+      <div class="beaker-liquid" id="beakerFluid">
+        <div class="bubble" style="left: 20%; animation-delay: 0.2s;"></div>
+        <div class="bubble" style="left: 60%; animation-delay: 0.6s;"></div>
+      </div>
+    </div>
+
+    <!-- 모니터 -->
+    <div class="status-monitor">
+      <div style="color: #9ca3af; margin-bottom: 6px;">[ANALYSIS LOG]</div>
+      <div>투입 내역: <span id="logDrops" style="color: #fef08a;">없음</span></div>
+      <div style="margin-top: 4px;">용액 상태: <span id="logStatus">대기 중</span></div>
+      <button class="btn-reset" onclick="resetLab()">↺ 비커 세척 (초기화)</button>
+    </div>
+  </div>
+
+  <!-- 결과 및 복사창 -->
+  <div class="result-box" id="resultBox">
+    <div class="result-header">
+      <span class="result-title">✓ 조직 붕괴용 해화제 합성 성공</span>
+      <button class="btn-copy" id="copyBtn">📋 합성 데이터 복사</button>
+    </div>
+    <div class="result-content" id="finalReport">
+      <strong>[화학 분석 및 임상 대응 보고서]</strong><br>
+      • <strong>합성물:</strong> Anti-Capra Serum (해화제 배치 No.3)<br>
+      • <strong>용도:</strong> 변이된 테드 도슨 서장의 피부 각질화 조직을 일시적으로 연화시킴.<br>
+      • <strong>약점 확인:</strong> 변이 부위에 투여 시 방어력이 급격히 감소하며, 일반 물리 공격이 관통 가능해짐.
+    </div>
+  </div>
+</div>
+
+<script>
+  let drops = [];
+  const maxDrops = 3;
+  const beakerFluid = document.getElementById('beakerFluid');
+  const logDrops = document.getElementById('logDrops');
+  const logStatus = document.getElementById('logStatus');
+  const resultBox = document.getElementById('resultBox');
+  const copyBtn = document.getElementById('copyBtn');
+
+  function addDrop(type) {
+    if (drops.length >= maxDrops) return;
+
+    drops.push(type);
+    updateBeaker();
+  }
+
+  function updateBeaker() {
+    const count = drops.length;
+    beakerFluid.style.height = `${count * 30}%`;
+    logDrops.innerText = drops.join(' - ');
+
+    // 색상 변화 로직
+    const counts = { A: 0, B: 0, C: 0 };
+    drops.forEach(d => counts[d]++);
+
+    if (count === 1) {
+      if (drops[0] === 'A') beakerFluid.style.background = '#3b82f6';
+      if (drops[0] === 'B') beakerFluid.style.background = '#ef4444';
+      if (drops[0] === 'C') beakerFluid.style.background = '#eab308';
+      logStatus.innerText = "단일 시약 주입됨...";
+      logStatus.style.color = "#9ca3af";
+    } else if (count === 2) {
+      beakerFluid.style.background = '#8b5cf6'; // 중간 보라색
+      logStatus.innerText = "화학적 결합 진행 중...";
+      logStatus.style.color = "#cbd5e1";
+    } else if (count === 3) {
+      // 3방울 완료 시 판정 (정답: A 2회, C 1회)
+      if (counts.A === 2 && counts.C === 1) {
+        beakerFluid.style.background = '#10b981'; // 완성 청록색
+        beakerFluid.style.boxShadow = '0 0 20px #10b981';
+        logStatus.innerText = "✓ 완벽한 반응 완료 (안정화됨)";
+        logStatus.style.color = "#34d399";
+        resultBox.style.display = 'flex';
+      } else {
+        beakerFluid.style.background = '#450a0a'; // 실패 오염색
+        beakerFluid.style.boxShadow = '0 0 10px #dc2626';
+        logStatus.innerText = "⚠ 반응 실패: 독성 침전물 발생";
+        logStatus.style.color = "#f87171";
+      }
+    }
+  }
+
+  function resetLab() {
+    drops = [];
+    beakerFluid.style.height = '0%';
+    beakerFluid.style.background = '#4b5563';
+    beakerFluid.style.boxShadow = 'none';
+    logDrops.innerText = "없음";
+    logStatus.innerText = "대기 중";
+    logStatus.style.color = "#4ade80";
+    resultBox.style.display = 'none';
+  }
+
+  // 복사 기능
+  copyBtn.addEventListener('click', () => {
+    const textToCopy = `[화학 분석 및 임상 대응 보고서]
+• 합성물: Anti-Capra Serum (해화제 배치 No.3)
+• 용도: 변이된 테드 도슨 서장의 피부 각질화 조직을 일시적으로 연화시킴.
+• 약점 확인: 변이 부위에 투여 시 방어력이 급격히 감소하며, 일반 물리 공격이 관통 가능해짐.`;
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      const original = copyBtn.innerText;
+      copyBtn.innerText = "✓ 복사 완료!";
+      copyBtn.style.background = "#22c55e";
+      copyBtn.style.color = "#000";
+
+      setTimeout(() => {
+        copyBtn.innerText = original;
+        copyBtn.style.background = "#166534";
+        copyBtn.style.color = "#fff";
+      }, 1500);
+    });
+  });
+</script>
+
+</body>
+</html>

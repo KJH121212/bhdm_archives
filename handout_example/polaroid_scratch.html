@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>ZyMedBio - 폴라로이드 증거 복원</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #0d120f;
+    color: #eee;
+    font-family: 'Georgia', serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px 10px;
+    margin: 0;
+    user-select: none;
+  }
+
+  .instructions {
+    margin-bottom: 15px;
+    font-size: 13px;
+    color: #4ade80;
+    font-family: monospace;
+    letter-spacing: 1px;
+  }
+
+  /* 폴라로이드 프레임 */
+  .polaroid-card {
+    background: #ecdcc1;
+    padding: 16px 16px 45px 16px;
+    border-radius: 4px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.8), 2px 2px 10px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    transform: rotate(-1deg);
+  }
+
+  .photo-frame {
+    position: relative;
+    width: 360px;
+    height: 360px;
+    background: #111;
+    overflow: hidden;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+  }
+
+  /* 1. 밑에 깔린 실제 사진 (SVG 비주얼) */
+  .photo-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at center, #2d3748 0%, #0f172a 100%);
+    color: #fff;
+    text-align: center;
+  }
+
+  /* 2. 위에 덮인 스크래치 캔버스 */
+  #scratchCanvas {
+    position: absolute;
+    inset: 0;
+    cursor: crosshair;
+  }
+
+  .polaroid-label {
+    position: absolute;
+    bottom: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #5c4033;
+    font-weight: bold;
+  }
+
+  /* 3. 복원 완료 알림 & 복사창 */
+  .result-box {
+    margin-top: 20px;
+    width: 460px;
+    background: #04250f;
+    border: 2px solid #4ade80;
+    border-radius: 6px;
+    padding: 15px 20px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .result-title {
+    color: #86efac;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 13px;
+  }
+
+  .btn-copy {
+    background: #166534;
+    color: #fff;
+    border: 1px solid #4ade80;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-family: monospace;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-copy:hover {
+    background: #22c55e;
+    color: #000;
+  }
+
+  .result-desc {
+    color: #cbd5e1;
+    font-size: 13px;
+    line-height: 1.5;
+    background: rgba(0,0,0,0.3);
+    padding: 10px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="instructions">
+  [!] 마우스로 까맣게 그을린 사진 표면을 문질러 복원하십시오.
+</div>
+
+<div class="polaroid-card">
+  <div class="photo-frame">
+    <!-- 밑바탕 사진 내용 -->
+    <div class="photo-content">
+      <!-- 기괴한 눈동자 / 심볼 SVG -->
+      <svg width="120" height="120" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" fill="#1e293b" stroke="#ef4444" stroke-width="3"/>
+        <circle cx="50" cy="50" r="28" fill="#991b1b" />
+        <ellipse cx="50" cy="50" rx="8" ry="24" fill="#000" />
+        <circle cx="44" cy="42" r="4" fill="#fff" opacity="0.8"/>
+      </svg>
+      <div style="margin-top: 15px; font-family: monospace; font-size: 15px; color: #fca5a5; font-weight: bold;">
+        [피험자 변이 관찰 기록]
+      </div>
+      <div style="font-size: 20px; font-family: monospace; color: #fbbf24; font-weight: bold; margin-top: 5px; text-shadow: 0 0 8px #d97706;">
+        비상 코드: 7 3 9 1
+      </div>
+    </div>
+
+    <!-- 긁어내는 캔버스 -->
+    <canvas id="scratchCanvas" width="360" height="360"></canvas>
+  </div>
+
+  <div class="polaroid-label">EVIDENCE #48 - ZYMED LAB</div>
+</div>
+
+<!-- 복원 성공 배너 -->
+<div class="result-box" id="resultBox">
+  <div class="result-header">
+    <span class="result-title">✓ 증거 사진 현상 완료</span>
+    <button class="btn-copy" id="copyBtn">📋 단서 복사</button>
+  </div>
+  <div class="result-desc" id="evidenceText">
+    <strong>[현장 사진 분석 결과]</strong><br>
+    피험자의 안구가 비정상적으로 팽창하여 수직 동공으로 변이됨. 뒷면 메모에 적힌 지하 3층 비상 해제 코드는 <strong>[ 7391 ]</strong>이다.
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('scratchCanvas');
+  const ctx = canvas.getContext('2d');
+  const resultBox = document.getElementById('resultBox');
+  const copyBtn = document.getElementById('copyBtn');
+
+  let isDrawing = false;
+  let isSolved = false;
+
+  // 캔버스 초기화 (그을린 먹칠 레이어 생성)
+  ctx.fillStyle = '#1c1917';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // 표면에 노이즈와 얼룩 텍스처 추가
+  ctx.fillStyle = '#292524';
+  for (let i = 0; i < 40; i++) {
+    ctx.beginPath();
+    ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 30 + 10, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 안내 문구 추가
+  ctx.fillStyle = '#78716c';
+  ctx.font = '14px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('[ 마우스로 긁어내기 ]', canvas.width / 2, canvas.height / 2);
+
+  function scratch(e) {
+    if (!isDrawing || isSolved) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x, y, 26, 0, Math.PI * 2);
+    ctx.fill();
+
+    checkProgress();
+  }
+
+  // 긁어낸 면적 판정 (약 45% 이상 벗겨내면 자동 완성)
+  function checkProgress() {
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const pixels = imgData.data;
+    let transparentCount = 0;
+
+    for (let i = 3; i < pixels.length; i += 16) {
+      if (pixels[i] === 0) transparentCount++;
+    }
+
+    const totalSamples = pixels.length / 16;
+    if (transparentCount / totalSamples > 0.45) {
+      isSolved = true;
+      canvas.style.transition = 'opacity 0.5s ease';
+      canvas.style.opacity = '0';
+      setTimeout(() => { canvas.style.display = 'none'; }, 500);
+      resultBox.style.display = 'flex';
+    }
+  }
+
+  canvas.addEventListener('mousedown', (e) => { isDrawing = true; scratch(e); });
+  window.addEventListener('mousemove', scratch);
+  window.addEventListener('mouseup', () => { isDrawing = false; });
+
+  // 클립보드 복사
+  copyBtn.addEventListener('click', () => {
+    const copyContent = `[현장 사진 분석 결과 - EVIDENCE #48]
+피험자의 안구가 비정상적으로 팽창하여 수직 동공으로 변이됨.
+지하 3층 비상 해제 코드: [ 7391 ]`;
+
+    navigator.clipboard.writeText(copyContent).then(() => {
+      const original = copyBtn.innerText;
+      copyBtn.innerText = "✓ 복사 완료!";
+      copyBtn.style.background = "#22c55e";
+      copyBtn.style.color = "#000";
+
+      setTimeout(() => {
+        copyBtn.innerText = original;
+        copyBtn.style.background = "#166534";
+        copyBtn.style.color = "#fff";
+      }, 1500);
+    });
+  });
+</script>
+
+</body>
+</html>

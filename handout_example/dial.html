@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>금고/창고 다이얼 자물쇠</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #0a0e0c;
+    color: #e5e7eb;
+    font-family: 'Consolas', 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px 10px;
+    margin: 0;
+    user-select: none;
+  }
+
+  .instructions {
+    margin-bottom: 15px;
+    font-size: 13px;
+    color: #fbbf24;
+    letter-spacing: 1px;
+  }
+
+  /* 강철 금고문 프레임 */
+  .vault-frame {
+    width: 660px;
+    background: #18201a;
+    border: 6px solid #28362b;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.95), inset 0 0 40px rgba(0,0,0,0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  /* 상단 단계 인디케이터 */
+  .stage-bar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    background: #0f1511;
+    border: 2px solid #223326;
+    border-radius: 6px;
+    padding: 12px 20px;
+    font-size: 12.5px;
+  }
+
+  .stage-item {
+    color: #6b7280;
+    transition: color 0.3s;
+  }
+
+  .stage-item.active {
+    color: #facc15;
+    font-weight: bold;
+  }
+
+  .stage-item.done {
+    color: #4ade80;
+  }
+
+  /* 중앙 다이얼 스테이지 */
+  .dial-stage {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 상단 정렬 마커(적색 삼각 인디케이터) */
+  .dial-pointer {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-top: 14px solid #ef4444;
+    z-index: 10;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+  }
+
+  /* 외부 링 하우징 */
+  .dial-rim {
+    width: 310px;
+    height: 310px;
+    background: radial-gradient(circle, #2d3b31 0%, #151c17 100%);
+    border: 4px solid #3e5243;
+    border-radius: 50%;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.8), inset 0 0 15px rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 회전하는 다이얼 휠 */
+  .dial-wheel {
+    position: relative;
+    width: 270px;
+    height: 270px;
+    background: radial-gradient(circle, #37473b 0%, #1c2620 70%, #0d120f 100%);
+    border: 3px solid #607966;
+    border-radius: 50%;
+    cursor: grab;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5);
+  }
+
+  .dial-wheel:active {
+    cursor: grabbing;
+  }
+
+  /* 다이얼 중앙 금속 손잡이 */
+  .dial-knob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 110px;
+    height: 110px;
+    background: radial-gradient(circle at 35% 35%, #4b5e50 0%, #1e2621 100%);
+    border: 3px solid #232c25;
+    border-radius: 50%;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.7), inset 0 2px 4px rgba(255,255,255,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .current-val {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fef08a;
+    text-shadow: 0 0 6px rgba(250, 204, 21, 0.4);
+  }
+
+  /* 눈금 텍스트 스타일 */
+  .tick-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 11px;
+    font-weight: bold;
+    color: #cbd5e1;
+    transform-origin: center center;
+    pointer-events: none;
+  }
+
+  /* 하단 다이얼 조작 보조 버튼 */
+  .btn-step-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .btn-turn {
+    background: #1f2d24;
+    color: #cbd5e1;
+    border: 1.5px solid #3e5243;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-turn:hover {
+    background: #2f4436;
+    color: #fff;
+    border-color: #4ade80;
+  }
+
+  .btn-confirm {
+    background: #166534;
+    color: #fff;
+    border: 1.5px solid #4ade80;
+    padding: 8px 22px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-confirm:hover {
+    background: #22c55e;
+    color: #000;
+  }
+
+  /* 금고 개방 결과창 */
+  .vault-open-box {
+    width: 100%;
+    background: #042410;
+    border: 2px solid #22c55e;
+    border-radius: 6px;
+    padding: 16px 20px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 0 25px rgba(34, 197, 94, 0.4);
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .open-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .open-title {
+    color: #86efac;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  .btn-copy {
+    background: #166534;
+    color: #fff;
+    border: 1px solid #4ade80;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-copy:hover {
+    background: #22c55e;
+    color: #000;
+  }
+
+  .open-desc {
+    color: #cbd5e1;
+    font-size: 13px;
+    line-height: 1.6;
+    background: rgba(0,0,0,0.4);
+    padding: 12px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="instructions">
+  [!] 마우스로 다이얼을 잡고 회전하거나 방향 버튼을 눌러 비밀번호를 맞추십시오.
+</div>
+
+<div class="vault-frame">
+  <!-- 상단 단계 표시 -->
+  <div class="stage-bar">
+    <span class="stage-item active" id="stg1">1단계: 우측(시계) ➡️ [ 24 ]</span>
+    <span class="stage-item" id="stg2">2단계: 좌측(반시계) ➡️ [ 10 ]</span>
+    <span class="stage-item" id="stg3">3단계: 우측(시계) ➡️ [ 35 ]</span>
+  </div>
+
+  <!-- 다이얼 메인 -->
+  <div class="dial-stage">
+    <div class="dial-pointer"></div>
+    <div class="dial-rim">
+      <div class="dial-wheel" id="dialWheel">
+        <!-- 40개 눈금 렌더링 -->
+      </div>
+    </div>
+    <div class="dial-knob">
+      <span style="font-size: 10px; color: #9ca3af;">CURRENT</span>
+      <span class="current-val" id="displayVal">0</span>
+    </div>
+  </div>
+
+  <!-- 미세 조작 및 확인 버튼 -->
+  <div class="btn-step-group">
+    <button class="btn-turn" onclick="adjustDial(-1)">◀ 좌회전 (-1)</button>
+    <button class="btn-confirm" onclick="checkCurrentStep()">[ 번호 확정 / 다음 ]</button>
+    <button class="btn-turn" onclick="adjustDial(1)">우회전 (+1) ▶</button>
+  </div>
+
+  <!-- 창고 개방 완료 패널 -->
+  <div class="vault-open-box" id="openBox">
+    <div class="open-header">
+      <span class="open-title">✓ [중앙 무기고/창고 육중한 철문 개방]</span>
+      <button class="btn-copy" id="copyBtn">📋 보관 품목 복사</button>
+    </div>
+    <div class="open-desc">
+      <strong>[VAULT REPOSITORY - ASSET REPORT]</strong><br>
+      • 다이얼 조합(24 - 10 - 35)이 맞아떨어지며 내부 빗장이 풀렸습니다.<br>
+      • <strong>수거 물품:</strong> 산탄총 탄약 12발, 군용 제독제 2병, <strong>[지하 4층 반출 허가증 #09]</strong><br>
+      • <strong>벽면 메모:</strong> "테드가 완전히 변하기 전에 봉쇄를 완료할 것."
+    </div>
+  </div>
+</div>
+
+<script>
+  // 총 눈금 수: 0 ~ 39 (40개)
+  const totalTicks = 40;
+  const degreesPerTick = 360 / totalTicks; // 9도당 1눈금
+
+  // 정답 시퀀스: 1. 24 (우) -> 2. 10 (좌) -> 3. 35 (우)
+  const combo = [24, 10, 35];
+  let currentStage = 0;
+  let currentAngle = 0;
+  let currentTickValue = 0;
+  let isDragging = false;
+  let startAngle = 0;
+  let baseAngle = 0;
+  let lastSoundTick = 0;
+  let audioCtx = null;
+
+  const dialWheel = document.getElementById('dialWheel');
+  const displayVal = document.getElementById('displayVal');
+  const openBox = document.getElementById('openBox');
+  const copyBtn = document.getElementById('copyBtn');
+
+  // 눈금 생성
+  for (let i = 0; i < totalTicks; i++) {
+    const label = document.createElement('div');
+    label.className = 'tick-label';
+    const angle = i * degreesPerTick;
+    
+    // 5단위 숫자는 텍스트 표시, 나머지는 점/바
+    if (i % 5 === 0) {
+      label.innerText = i;
+    } else {
+      label.innerText = '·';
+      label.style.fontSize = '16px';
+    }
+
+    label.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateY(-112px) rotate(${-angle}deg)`;
+    dialWheel.appendChild(label);
+  }
+
+  // 래칫 틱 사운드 (Web Audio API)
+  function playTickSound() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.03);
+    } catch(e) {}
+  }
+
+  function updateDialUI() {
+    dialWheel.style.transform = `rotate(${currentAngle}deg)`;
+
+    // 상단 포인터 기준 눈금 계산 (회전각 반대 방향)
+    let normalized = ((-currentAngle % 360) + 360) % 360;
+    currentTickValue = Math.round(normalized / degreesPerTick) % totalTicks;
+    displayVal.innerText = currentTickValue;
+
+    if (currentTickValue !== lastSoundTick) {
+      playTickSound();
+      lastSoundTick = currentTickValue;
+    }
+  }
+
+  function adjustDial(delta) {
+    if (currentStage >= 3) return;
+    currentAngle -= delta * degreesPerTick;
+    updateDialUI();
+  }
+
+  // 마우스 드래그 조작
+  function getAngleFromEvent(e) {
+    const rect = dialWheel.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const x = e.clientX - centerX;
+    const y = e.clientY - centerY;
+    return Math.atan2(y, x) * (180 / Math.PI);
+  }
+
+  dialWheel.addEventListener('mousedown', (e) => {
+    if (currentStage >= 3) return;
+    isDragging = true;
+    startAngle = getAngleFromEvent(e);
+    baseAngle = currentAngle;
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const nowAngle = getAngleFromEvent(e);
+    const diff = nowAngle - startAngle;
+    currentAngle = baseAngle + diff;
+    updateDialUI();
+  });
+
+  window.addEventListener('mouseup', () => { isDragging = false; });
+
+  // 번호 확정 판정
+  function checkCurrentStep() {
+    if (currentStage >= 3) return;
+
+    if (currentTickValue === combo[currentStage]) {
+      // 정답 맞춤
+      const stageEl = document.getElementById(`stg${currentStage + 1}`);
+      stageEl.classList.remove('active');
+      stageEl.classList.add('done');
+      stageEl.innerText += " ✓";
+
+      currentStage++;
+
+      if (currentStage < 3) {
+        document.getElementById(`stg${currentStage + 1}`).classList.add('active');
+      } else {
+        // 3단계 모두 성공 시
+        openBox.style.display = 'flex';
+      }
+    } else {
+      // 오답: 리셋
+      alert(`[철컥!] 다이얼 핀이 걸리지 않았습니다. (${currentTickValue}번 오답 - 처음부터 다시 시도하십시오)`);
+      currentStage = 0;
+      for (let i = 1; i <= 3; i++) {
+        const el = document.getElementById(`stg${i}`);
+        el.classList.remove('active', 'done');
+      }
+      document.getElementById('stg1').className = 'stage-item active';
+      document.getElementById('stg1').innerText = "1단계: 우측(시계) ➡️ [ 24 ]";
+      document.getElementById('stg2').innerText = "2단계: 좌측(반시계) ➡️ [ 10 ]";
+      document.getElementById('stg3').innerText = "3단계: 우측(시계) ➡️ [ 35 ]";
+    }
+  }
+
+  // 복사 기능
+  copyBtn.addEventListener('click', () => {
+    const textToCopy = `[중앙 창고 개방 보고서 - 다이얼 해제 완료]
+• 해제 번호 조합: [ 24 - 10 - 35 ]
+• 수거 전리품: 산탄총 탄약 12발, 군용 제독제 2병, [지하 4층 반출 허가증 #09]
+• 특이 단서: "테드가 완전히 변하기 전에 봉쇄를 완료할 것."`;
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      const original = copyBtn.innerText;
+      copyBtn.innerText = "✓ 복사 완료!";
+      copyBtn.style.background = "#22c55e";
+      copyBtn.style.color = "#000";
+
+      setTimeout(() => {
+        copyBtn.innerText = original;
+        copyBtn.style.background = "#166534";
+        copyBtn.style.color = "#fff";
+      }, 1500);
+    });
+  });
+
+  updateDialUI();
+</script>
+
+</body>
+</html>

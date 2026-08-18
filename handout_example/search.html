@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>ZyMedBio - 문서 아카이브 데이터베이스</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #080c09;
+    color: #d1d5db;
+    font-family: 'Consolas', 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px 10px;
+    margin: 0;
+    user-select: none;
+  }
+
+  .instructions {
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #4ade80;
+    letter-spacing: 1px;
+  }
+
+  /* 아카이브 시스템 메인 프레임 */
+  .archive-frame {
+    width: 780px;
+    height: 520px;
+    background: #111813;
+    border: 3px solid #233327;
+    border-radius: 8px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* 상단 검색바 & 상태 툴바 */
+  .toolbar {
+    background: #17221b;
+    border-bottom: 2px solid #233327;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .search-input {
+    width: 100%;
+    background: #0a0f0c;
+    border: 1.5px solid #2e4a36;
+    border-radius: 4px;
+    padding: 6px 12px;
+    color: #4ade80;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+  }
+
+  .search-input:focus {
+    border-color: #4ade80;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.3);
+  }
+
+  .file-count {
+    font-size: 11px;
+    color: #9ca3af;
+    white-space: nowrap;
+  }
+
+  /* 본문 영역 (2단 분할 레이아웃) */
+  .main-content {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    height: calc(100% - 60px);
+  }
+
+  /* 좌측 문서 리스트 패널 */
+  .doc-list {
+    background: #0c130e;
+    border-right: 2px solid #233327;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .doc-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #1a291e;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .doc-item:hover {
+    background: #152219;
+  }
+
+  .doc-item.active {
+    background: #1a3322;
+    border-left: 4px solid #4ade80;
+  }
+
+  .doc-id {
+    font-size: 11px;
+    color: #6ee7b7;
+    margin-bottom: 3px;
+  }
+
+  .doc-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #f3f4f6;
+  }
+
+  .doc-date {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 3px;
+  }
+
+  /* 우측 문서 열람 뷰어 */
+  .doc-viewer {
+    background: #080d09;
+    padding: 25px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .viewer-header {
+    border-bottom: 1.5px dashed #2e4a36;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .viewer-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #86efac;
+  }
+
+  .viewer-body {
+    color: #d1d5db;
+    font-size: 13.5px;
+    line-height: 1.8;
+    user-select: text; /* 텍스트 선택 가능 */
+    flex: 1;
+  }
+
+  .confidential-badge {
+    background: #7f1d1d;
+    color: #fca5a5;
+    border: 1px solid #ef4444;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+
+  /* 하단 복사 툴바 */
+  .viewer-footer {
+    border-top: 1.5px solid #1a291e;
+    padding-top: 12px;
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-copy {
+    background: #166534;
+    color: #fff;
+    border: 1px solid #4ade80;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-copy:hover {
+    background: #22c55e;
+    color: #000;
+  }
+</style>
+</head>
+<body>
+
+<div class="instructions">
+  [!] 키워드를 검색하거나 좌측 문서를 클릭하여 수색하십시오.
+</div>
+
+<div class="archive-frame">
+  <!-- 상단 검색창 -->
+  <div class="toolbar">
+    <div class="search-box">
+      <span style="color: #4ade80;">&gt; SEARCH:</span>
+      <input type="text" id="searchInput" class="search-input" placeholder="키워드 입력 (예: 도슨, 혈청, 실종, 1984)...">
+    </div>
+    <div class="file-count" id="fileCount">총 5건의 문서 로드됨</div>
+  </div>
+
+  <!-- 메인 뷰어 -->
+  <div class="main-content">
+    <!-- 좌측 파일 리스트 -->
+    <div class="doc-list" id="docList"></div>
+
+    <!-- 우측 파일 상세 내용 -->
+    <div class="doc-viewer">
+      <div id="viewerContent">
+        <!-- JS로 동적 렌더링 -->
+      </div>
+      <div class="viewer-footer">
+        <span style="font-size: 11px; color: #6b7280;">SECURITY LEVEL: RESTRICTED</span>
+        <button class="btn-copy" id="copyBtn">📋 현재 문서 내용 복사</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 아카이브 데이터베이스 목록
+  const database = [
+    {
+      id: "DOC-1984-01",
+      title: "정기 시설 경비 및 출입 일지",
+      date: "1984.09.12",
+      tags: ["경비", "출입", "시설", "정기"],
+      isSecret: false,
+      content: `[1984년 9월 12일 정기 순찰 기록]
+• 21:00 정문 경비초소 인수인계 완료. 이상 무.
+• 23:30 서관 지하 보일러실 배관 압력 저하 확인되어 밸브 조정.
+• 특이사항: B구역 폐기물 보관소 주변에서 야생동물(들개 추정) 발자국 다수 발견됨.`
+    },
+    {
+      id: "DOC-1984-04",
+      title: "도슨 경찰서장 협력 감사 서신",
+      date: "1984.10.05",
+      tags: ["도슨", "경찰", "서장", "후원"],
+      isSecret: false,
+      content: `[ZyMedBio 이사회 대외협력팀 서신]
+수신: 테드 도슨 경찰서장
+내용: 시 재향군인 복지 기금 및 경찰서 노후 차량 교체 지원금(합계 5만 달러)이 예정대로 집행되었습니다. 관내 임상 연구 시설에 대한 서장님의 지속적인 협조에 깊은 감사를 표합니다.`
+    },
+    {
+      id: "DOC-1984-09",
+      title: "[기밀] Zylactis-9 혈청 임상 부작용 보고",
+      date: "1984.10.18",
+      tags: ["혈청", "도슨", "변이", "기밀", "부작용", "실종"],
+      isSecret: true,
+      content: `[최고 보안 등급: 대외비]
+피험자: 테드 도슨 (54세, 남성)
+투여물: Zylactis Batch-9 (어미의 원액 희석 제제)
+
+경과:
+• 투여 7일차: 만성 췌장 질환 완전 관해. 근육 밀도 200% 증가.
+• 투여 14일차: 심각한 거부 반응. 잇몸에서 추가 치열 맹출, 발톱의 각질화.
+• 결론: 변이 억제제 투여 필요. 비상 보관함 해제 코드 [ 5 1 9 4 ]를 통해 지하 3층 밀실 격리 구역에서 억제제를 수령할 것.`
+    },
+    {
+      id: "DOC-1984-11",
+      title: "약품 원자재 폐기 처리 내역",
+      date: "1984.10.22",
+      tags: ["폐기", "시약", "원자재"],
+      isSecret: false,
+      content: `[약품 폐기 보고서]
+• 폐기 품목: 변질된 포름알데히드 50L, 파손된 유리 플라스크 12조.
+• 처리 사유: 보관실 온도 제어 장치 일시 고장으로 인한 약품 변질.
+• 처리자: 제2연구동 보조원 일동.`
+    },
+    {
+      id: "DOC-1984-15",
+      title: "인근 산림 야생동물 밀렵 조사 결과",
+      date: "1984.10.27",
+      tags: ["산림", "실종", "야생", "동물"],
+      isSecret: false,
+      content: `[군립공원 관리사무소 회신문]
+최근 블랙우드 숲 일대에서 가축(염소 4두, 암소 1두)의 내장이 적출된 채 발견된 사건은 대형 곰이나 늑대 무리의 소행으로 추정됩니다. 주민들의 야간 입산을 통제해 주시기 바랍니다.`
+    }
+  ];
+
+  const docList = document.getElementById('docList');
+  const searchInput = document.getElementById('searchInput');
+  const viewerContent = document.getElementById('viewerContent');
+  const fileCount = document.getElementById('fileCount');
+  const copyBtn = document.getElementById('copyBtn');
+
+  let currentDoc = database[0];
+  let filteredDocs = [...database];
+
+  // 목록 렌더링
+  function renderList() {
+    docList.innerHTML = "";
+    filteredDocs.forEach(doc => {
+      const item = document.createElement('div');
+      item.className = `doc-item ${doc.id === currentDoc.id ? 'active' : ''}`;
+      item.innerHTML = `
+        <div class="doc-id">${doc.id}</div>
+        <div class="doc-title">${doc.title}</div>
+        <div class="doc-date">${doc.date}</div>
+      `;
+      item.addEventListener('click', () => {
+        currentDoc = doc;
+        renderList();
+        renderViewer();
+      });
+      docList.appendChild(item);
+    });
+
+    fileCount.innerText = `총 ${filteredDocs.length}건의 문서 검색됨`;
+  }
+
+  // 뷰어 본문 렌더링
+  function renderViewer() {
+    viewerContent.innerHTML = `
+      <div class="viewer-header">
+        <div>
+          <div style="font-size: 11px; color: #6ee7b7; margin-bottom: 4px;">ID: ${currentDoc.id} // DATE: ${currentDoc.date}</div>
+          <div class="viewer-title">${currentDoc.title}</div>
+        </div>
+        ${currentDoc.isSecret ? '<span class="confidential-badge">CONFIDENTIAL</span>' : ''}
+      </div>
+      <div class="viewer-body">${currentDoc.content.replace(/\n/g, '<br>')}</div>
+    `;
+  }
+
+  // 검색 기능
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.trim().toLowerCase();
+    if (!query) {
+      filteredDocs = [...database];
+    } else {
+      filteredDocs = database.filter(doc => 
+        doc.title.toLowerCase().includes(query) ||
+        doc.id.toLowerCase().includes(query) ||
+        doc.content.toLowerCase().includes(query) ||
+        doc.tags.some(tag => tag.toLowerCase().includes(query))
+      );
+    }
+
+    if (filteredDocs.length > 0 && !filteredDocs.some(d => d.id === currentDoc.id)) {
+      currentDoc = filteredDocs[0];
+    }
+    renderList();
+    if (filteredDocs.length > 0) renderViewer();
+    else {
+      viewerContent.innerHTML = `<div style="color: #ef4444; padding: 40px 0; text-align: center;">[ 검색 결과가 존재하지 않습니다 ]</div>`;
+    }
+  });
+
+  // 복사 기능
+  copyBtn.addEventListener('click', () => {
+    if (!currentDoc) return;
+    const textToCopy = `[${currentDoc.id}] ${currentDoc.title}\n일자: ${currentDoc.date}\n\n${currentDoc.content}`;
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      const origin = copyBtn.innerText;
+      copyBtn.innerText = "✓ 복사 완료!";
+      copyBtn.style.background = "#22c55e";
+      copyBtn.style.color = "#000";
+
+      setTimeout(() => {
+        copyBtn.innerText = origin;
+        copyBtn.style.background = "#166534";
+        copyBtn.style.color = "#fff";
+      }, 1500);
+    });
+  });
+
+  // 초기화
+  renderList();
+  renderViewer();
+</script>
+
+</body>
+</html>

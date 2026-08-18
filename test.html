@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoC 7th 〈호질(虎叱)〉 핸드아웃 아카이브</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&family=Nanum+Pen+Script&family=Noto+Serif+KR:wght@300;600;900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #0d0c0a;
+      --panel-bg: #1a1815;
+      --accent-blood: #8a1414;
+      --accent-gold: #c59f60;
+      --text-main: #d6cfc7;
+      --text-dim: #8c8275;
+      --paper-base: #e8dec8;
+      --paper-burn: #3d2b1f;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Gowun Batang', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(20, 15, 10, 0.8), rgba(5, 5, 5, 0.98)),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+    }
+
+    header {
+      text-align: center;
+      padding: 2.5rem 1rem 1.5rem;
+      border-bottom: 1px solid rgba(197, 159, 96, 0.2);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+    }
+
+    h1 {
+      font-family: 'Noto Serif KR', serif;
+      font-weight: 900;
+      font-size: 2.5rem;
+      letter-spacing: 0.35rem;
+      color: #e5ded5;
+      text-shadow: 0 0 15px rgba(138, 20, 20, 0.7);
+    }
+
+    .subtitle {
+      color: var(--accent-gold);
+      font-size: 0.95rem;
+      letter-spacing: 0.15rem;
+      margin-top: 0.4rem;
+    }
+
+    /* 탭 네비게이션 */
+    .nav-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 1.2rem 1rem;
+      background: rgba(10, 8, 6, 0.9);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid #2a2219;
+    }
+
+    .nav-btn {
+      background: #1e1a15;
+      border: 1px solid #4a3e2e;
+      color: #a89f91;
+      padding: 0.5rem 0.9rem;
+      font-family: 'Gowun Batang', serif;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.25s ease;
+    }
+
+    .nav-btn:hover {
+      background: #33281c;
+      color: #f3efe6;
+      border-color: var(--accent-gold);
+    }
+
+    .nav-btn.active {
+      background: var(--accent-blood);
+      color: #fff;
+      border-color: #d13030;
+      box-shadow: 0 0 10px rgba(138, 20, 20, 0.5);
+    }
+
+    main {
+      flex: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 0 1.5rem 3rem;
+    }
+
+    .handout-card {
+      display: none;
+      animation: fadeIn 0.4s ease-in-out forwards;
+    }
+
+    .handout-card.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 공통 페이퍼 질감 베이스 */
+    .paper-texture {
+      position: relative;
+      background-color: var(--paper-base);
+      color: #2b2219;
+      padding: 2.5rem;
+      border-radius: 2px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.8), 0 0 0 1px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+
+    .paper-texture::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 20%, transparent 60%, rgba(85, 53, 24, 0.25) 100%);
+      pointer-events: none;
+    }
+
+    /* 1. 삼식이 전단지 */
+    .flyer-box {
+      border: 3px dashed #7a5f42;
+      padding: 2rem;
+      background-color: #f7f1e1;
+      text-align: center;
+      position: relative;
+    }
+    .flyer-title {
+      font-family: 'Nanum Pen Script', cursive;
+      font-size: 3rem;
+      color: #8a1414;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      letter-spacing: 2px;
+    }
+    .flyer-photo {
+      width: 200px;
+      height: 160px;
+      margin: 0 auto 1.5rem;
+      background: #d4c8b2;
+      border: 6px solid #fff;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(-2deg);
+      overflow: hidden;
+    }
+    .flyer-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: sepia(0.3) contrast(1.1);
+    }
+    .flyer-text {
+      font-family: 'Nanum Pen Script', cursive;
+      font-size: 1.8rem;
+      line-height: 1.6;
+      color: #222;
+      text-align: left;
+      display: inline-block;
+      max-width: 500px;
+    }
+    .flyer-tear {
+      position: absolute;
+      bottom: -10px;
+      right: 20px;
+      font-size: 0.8rem;
+      color: #999;
+      font-style: italic;
+    }
+
+    /* 2. 백묵 벽면 (甝) */
+    .wall-box {
+      background: #1f1d1a;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border: 8px solid #141210;
+      position: relative;
+      box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+      background-image: 
+        radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(45deg, #181614 25%, transparent 25%, transparent 75%, #181614 75%);
+      background-size: 30px 30px, 60px 60px;
+    }
+    .hanja-chalk {
+      font-family: 'Nanum Myeongjo', serif;
+      font-size: 9rem;
+      color: rgba(235, 235, 235, 0.85);
+      text-shadow: 
+        0 0 3px #fff,
+        0 0 12px rgba(255,255,255,0.4),
+        3px 3px 6px rgba(0,0,0,0.9);
+      user-select: none;
+      filter: drop-shadow(0 0 8px rgba(138, 20, 20, 0.6));
+      animation: chalkGaze 4s infinite alternate ease-in-out;
+    }
+    @keyframes chalkGaze {
+      0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 2px rgba(255,255,255,0.2)); }
+      100% { transform: scale(1.02) rotate(-0.5deg); filter: drop-shadow(0 0 15px rgba(180, 20, 20, 0.8)); }
+    }
+    .wall-desc {
+      color: #8c8275;
+      font-size: 0.85rem;
+      margin-top: 2rem;
+      letter-spacing: 0.1rem;
+    }
+
+    /* 3. 옛날 신문/잡지 */
+    .news-box {
+      background-color: #f1ebd9;
+      border: 1px solid #b8ab94;
+      padding: 2.2rem;
+      font-family: 'Nanum Myeongjo', serif;
+      color: #1f1b16;
+      line-height: 1.85;
+    }
+    .news-header {
+      font-size: 0.85rem;
+      border-bottom: 2px solid #333;
+      padding-bottom: 0.4rem;
+      margin-bottom: 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      color: #555;
+    }
+    .news-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      line-height: 1.4;
+      color: #111;
+    }
+    .news-content {
+      font-size: 1.05rem;
+      text-align: justify;
+      text-indent: 1em;
+    }
+    .news-highlight {
+      background: rgba(197, 159, 96, 0.25);
+      padding: 0 4px;
+      font-weight: bold;
+    }
+
+    /* 4. 홍의 주문 쪽지 */
+    .charm-paper {
+      background: #fbf5e5;
+      border: 1px solid #d9ccb0;
+      padding: 3rem 2rem;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      position: relative;
+    }
+    .charm-paper::after {
+      content: "";
+      position: absolute;
+      left: 10%;
+      top: 50%;
+      width: 80%;
+      height: 1px;
+      background: rgba(0,0,0,0.06);
+    }
+    .charm-text {
+      font-family: 'Gowun Batang', serif;
+      font-size: 2rem;
+      font-weight: bold;
+      letter-spacing: 0.3rem;
+      color: #8b1e1e;
+      text-shadow: 0 0 1px rgba(0,0,0,0.3);
+    }
+
+    /* 5. 우물 속 피 묻은 벽 */
+    .well-wall {
+      background: #0d1211;
+      padding: 3rem 2rem;
+      border-left: 5px solid #234035;
+      box-shadow: inset 0 0 60px #000;
+      color: #bbb;
+    }
+    .blood-writing {
+      font-family: 'Nanum Myeongjo', serif;
+      font-size: 1.35rem;
+      line-height: 2;
+      color: #a32222;
+      text-shadow: 0 0 10px rgba(163, 34, 34, 0.6), 2px 2px 4px #000;
+      font-weight: 700;
+      margin-bottom: 2rem;
+    }
+    .mermaid-box {
+      border-top: 1px dashed #344840;
+      padding-top: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .mermaid-sketch {
+      width: 90px;
+      height: 90px;
+      border: 1px solid #4a6358;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: #6d8e80;
+      background: #080c0b;
+    }
+    .mermaid-desc {
+      font-size: 0.95rem;
+      color: #7b998d;
+    }
+
+    /* 6. 산해경 찢긴 고서 */
+    .ancient-book {
+      background: #ded1b8;
+      border-left: 12px solid #5a3d28;
+      padding: 2.5rem;
+      font-family: 'Nanum Myeongjo', serif;
+      color: #2b2015;
+      line-height: 1.9;
+      box-shadow: inset 20px 0 30px rgba(0,0,0,0.15);
+    }
+    .book-torn-edge {
+      border-bottom: 2px dashed #93785b;
+      padding-bottom: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .book-p {
+      font-size: 1.05rem;
+      margin-bottom: 1.2rem;
+      text-indent: 1em;
+    }
+    .book-seal {
+      float: right;
+      width: 55px;
+      height: 55px;
+      border: 2px solid #9e2a2b;
+      color: #9e2a2b;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: bold;
+      transform: rotate(6deg);
+      margin: 10px;
+    }
+
+    /* 7. 무당 손의 세로쓰기 일기 */
+    .diary-vertical-wrap {
+      background: #e4d8c0;
+      padding: 2.5rem 2rem;
+      overflow-x: auto;
+      box-shadow: inset 0 0 40px rgba(78, 54, 33, 0.2);
+    }
+    .diary-scroll {
+      display: flex;
+      flex-direction: row-reverse;
+      gap: 2rem;
+      min-width: 600px;
+      writing-mode: vertical-rl;
+      font-family: 'Nanum Myeongjo', serif;
+      font-size: 1.1rem;
+      line-height: 2.2;
+      color: #1f1710;
+    }
+    .diary-entry {
+      border-left: 1px solid rgba(110, 80, 50, 0.2);
+      padding-left: 1rem;
+    }
+    .diary-date {
+      font-weight: 800;
+      color: #5a2828;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.2rem;
+    }
+    .diary-burn {
+      color: transparent;
+      text-shadow: 0 0 10px rgba(0,0,0,0.8);
+      background: linear-gradient(to left, #2b170c, transparent);
+      user-select: none;
+    }
+
+    /* 8. 욱의 주머니 속 사진들 */
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      perspective: 1000px;
+    }
+    .polaroid {
+      background: #faf7f2;
+      padding: 1rem 1rem 2.5rem;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+      transform: rotate(var(--rot, 0deg));
+      transition: transform 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    .polaroid:hover {
+      transform: scale(1.05) rotate(0deg);
+      z-index: 10;
+    }
+    .polaroid-img {
+      width: 100%;
+      height: 180px;
+      background: #444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 0.9rem;
+      filter: grayscale(100%) contrast(1.2);
+      background-size: cover;
+      background-position: center;
+    }
+    .polaroid-caption {
+      font-family: 'Nanum Pen Script', cursive;
+      font-size: 1.5rem;
+      text-align: center;
+      margin-top: 1rem;
+      color: #8b1e1e;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      border-top: 1px solid #1a1612;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>虎 叱 (호 질)</h1>
+    <div class="subtitle">Call of Cthulhu 7th Edition Scenario Handouts</div>
+  </header>
+
+  <nav class="nav-container">
+    <button class="nav-btn active" onclick="switchTab('tab1', this)">1. 실종 전단지</button>
+    <button class="nav-btn" onclick="switchTab('tab2', this)">2. 벽면 백묵(甝)</button>
+    <button class="nav-btn" onclick="switchTab('tab3', this)">3. 옛 신문 조각</button>
+    <button class="nav-btn" onclick="switchTab('tab4', this)">4. 홍의 주문 쪽지</button>
+    <button class="nav-btn" onclick="switchTab('tab5', this)">5. 우물 핏빛 글씨</button>
+    <button class="nav-btn" onclick="switchTab('tab6', this)">6. 산해경 발췌</button>
+    <button class="nav-btn" onclick="switchTab('tab7', this)">7. 무당 손의 일지</button>
+    <button class="nav-btn" onclick="switchTab('tab8', this)">8. 후보자 사진들</button>
+  </nav>
+
+  <main>
+    <section id="tab1" class="handout-card active">
+      <div class="flyer-box">
+        <div class="flyer-title">삼식이를 찾습니다</div>
+        <div class="flyer-photo">
+          <div style="background:#e0d5c1; width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#666; font-family:'Gowun Batang';">
+            [ 흰 삽살개 사진 ]
+          </div>
+        </div>
+        <div class="flyer-text">
+          • 견종: 삽살개 믹스 (수컷, 6살)<br>
+          • 특징: <b>빨간 개목걸이</b>를 착용하고 있습니다.<br>
+          • 보신 분은 <b>05ㅁ-ㅁㅁㅁ-ㅁㅁㅁㅁ</b> 로 꼭 연락 부탁드립니다.<br>
+          <span style="display:block; text-align:right; margin-top:10px; color:#8a1414;">- 사례금 넉넉히 드리겠습니다. -</span>
+        </div>
+        <div class="flyer-tear">※ 손으로 꽉 쥐어 찢겨진 흔적이 남아있다.</div>
+      </div>
+    </section>
+
+    <section id="tab2" class="handout-card">
+      <div class="wall-box">
+        <div class="hanja-chalk">甝</div>
+        <div class="wall-desc">불타 무너진 빈 집터, 그을린 벽에 삐뚤빼뚤하게 눌러쓴 글자 (흰범 감)</div>
+      </div>
+    </section>
+
+    <section id="tab3" class="handout-card">
+      <div class="news-box">
+        <div class="news-header">
+          <span>월간 기이명승보(紀異名勝報) 제24호 발췌</span>
+          <span>197X. 08</span>
+        </div>
+        <div class="news-title">서양 고전에 얽힌 바다의 괴물과 지혜로운 영웅 이야기</div>
+        <div class="news-content">
+          (...) 옛 서역의 설화에 <strong>오대수</strong>라는 남자가 있었습니다. 오대수는 험난한 풍파를 뚫고 귀향하기 위하여 좁은 해협을 건너야만 했습니다.
+          그 해협에는 고운 노랫소리로 사람의 넋을 앗아가는 <span class="news-highlight">사이-란(塞異鸞)</span>이라는 반인반수의 요물들이 숨어 살았습니다.
+          선원들이 그 청명하고 달콤한 노래에 홀려 배를 암초로 몰아 충돌시키면, 요물들은 물에 빠진 그들을 건져다 잔혹한 식사를 즐기곤 했습니다.
+          이에 현명한 오대수는 꾀를 내어 <b>선원들의 귀를 두터운 밀랍과 헝겊으로 단단히 틀어막게 하고, 자기 자신의 몸은 배의 굵은 돛대 기둥에 밧줄로 결박</b>하도록 명하였습니다. 그리하여 아무리 마음을 뒤흔드는 유혹의 음성이 들려올지라도 바다에 뛰어들지 않고 무사히 그 지옥 같은 해역을 벗어날 수 있었던 것입니다. (...)
+        </div>
+      </div>
+    </section>
+
+    <section id="tab4" class="handout-card">
+      <div class="charm-paper">
+        <div style="font-size: 0.9rem; color:#888; margin-bottom: 1.5rem; letter-spacing: 2px;">[ 작게 접혀있던 종잇조각 ]</div>
+        <div class="charm-text">
+          이두두지 저두두지<br>
+          구만두지 호만두지
+        </div>
+        <div style="font-size: 0.85rem; color:#a38b75; margin-top: 2rem;">( 읊조리면 서늘한 기운과 함께 마력이 빠져나가는 것이 느껴진다 )</div>
+      </div>
+    </section>
+
+    <section id="tab5" class="handout-card">
+      <div class="well-wall">
+        <div class="blood-writing">
+          "그 여자는 죽지 않았다.<br>
+          다른 사람의 거죽을 뒤집어쓰고 살아있다.<br>
+          누군가에게 알려야 하는데...<br>
+          내가 여기서 죽어선 안 되는데."
+        </div>
+        <div class="mermaid-box">
+          <div class="mermaid-sketch">
+            [ 氐人國 揷圖 ]
+          </div>
+          <div class="mermaid-desc">
+            <strong>氐人國 (저인국)</strong><br>
+            벽면 하단 백골 사이에 새겨진 인어 형상의 괴이한 부조.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab6" class="handout-card">
+      <div class="ancient-book">
+        <div class="book-seal">古書<br>調査</div>
+        <div class="book-torn-edge">
+          <div class="book-p">
+            <strong>《산해경(山海經)》 해외서경·해내남경 권지삼(卷之三) 번역초본</strong>
+          </div>
+          <div class="book-p">
+            "대인국(大人國)의 북쪽에 사비시(奢比尸)가 사는데, 그곳의 북쪽에 <strong>군자국(君子國)</strong>이 있다. 군자국 사람들은 의관을 갖추고 칼을 차며 짐승을 잡아먹는다. <b>두 마리의 큰 호랑이(二大虎)를 곁에 두고 부린다.</b> 그 나라 사람들은 사양하기를 좋아하여 서로 다투지 아니한다."
+          </div>
+          <div class="book-p">
+            "(...) 수중(水中)에 짐승이 하나 사니 그 이름을 <strong>마복(馬腹)</strong>이라 한다. <b>그 생김새가 사람의 얼굴에 호랑이의 몸(人面虎身)을 하였으며</b>, 그 우는 소리는 갓난 어린아이와 같고 능히 사람을 홀려 잡아먹는다."
+          </div>
+        </div>
+        <div style="font-size:0.85rem; color:#7d6148; font-style:italic;">
+          ※ 뒷부분의 가장 핵심적인 '범'에 관한 기록들은 누군가 손으로 거칠게 찢어가 버렸다.
+        </div>
+      </div>
+    </section>
+
+    <section id="tab7" class="handout-card">
+      <div class="diary-vertical-wrap">
+        <div class="diary-scroll">
+          <div class="diary-entry">
+            <div class="diary-date">一月十三日</div>
+            스승인 백돌 선생을 죽이고 후한의 사상가가 썼다는 경전을 손에 넣었다. 스승의 피를 손에 묻힐 만큼 가치 있는 책이어야 할 터.
+          </div>
+          <div class="diary-entry">
+            <div class="diary-date">四月二十○日</div>
+            경전은 신묘하다. 전승으로 내려오던 오래된 귀신을 불러냈다. 털빛이 우아하고 신통한 범. 이제 나도 백돌 선생을 능가하는 무녀가 될 수 있다.
+          </div>
+          <div class="diary-entry">
+            <div class="diary-date">○月十五日</div>
+            드디어 경전을 완전히 익혔다. 영혼을 남의 몸에 옮겨서 살아가는 도술을 터득했다. 이것이 극상의 경지가 아니라면 무언가? 딸년은 아무것도 모르는 눈치다. 가엾고 어리석은 것. 큰일에는 작은 희생이 따르는 법. 나는 곧 영생을 얻는다.
+          </div>
+          <div class="diary-entry">
+            <div class="diary-date">二月二十七日</div>
+            요사스러운 동물이 백돌 선생의 목소리로 내 귀에다 저주의 말을 쏟아낸다. 오늘 놈에게 홀려 쩍 벌어진 아가리에 내 머리를 집어넣었다. 놈은 그것을 씹지도 않고 내가 정신을 차릴 때까지 한참 동안 비웃는 눈으로 나를 보고 있었다.
+          </div>
+          <div class="diary-entry">
+            <div class="diary-date">二月二十八日</div>
+            저 짐승을 불러낸 것은 잘못이었다. 저것을 없애려면 <span class="diary-burn">■■■■■■■■■■■■■■■■■■■■■■</span>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:1rem; font-size:0.85rem; color:#8c8275;">
+        ( 2월 28일 자 기록 뒷부분은 불에 타거나 피로 검게 지워져 판독이 불가능합니다 )
+      </div>
+    </section>
+
+    <section id="tab8" class="handout-card">
+      <div class="photo-grid">
+        <div class="polaroid" style="--rot: -2deg;">
+          <div class="polaroid-img" style="background-color:#2a2521;">[ 흑백 소년 사진 ]</div>
+          <div class="polaroid-caption">후보 1. (어린 시절의 욱)</div>
+        </div>
+        <div class="polaroid" style="--rot: 3deg;">
+          <div class="polaroid-img" style="background-color:#242825;">[ 낡은 흑백 사진 ]</div>
+          <div class="polaroid-caption">후보 2. (어린 탐사자 4)</div>
+        </div>
+        <div class="polaroid" style="--rot: -1.5deg;">
+          <div class="polaroid-img" style="background-color:#2d2222;">[ 컬러 스냅 사진 ]</div>
+          <div class="polaroid-caption">후보 3. (소녀 홍)</div>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:1.8rem; font-size:0.9rem; color:#c59f60;">
+        ※ 사진 뒷면에는 모두 같은 필적으로 번호가 메겨져 있다.
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Call of Cthulhu 7th Ed. Fanmade Scenario 〈호질(虎叱)〉 Web Handout System
+  </footer>
+
+  <script>
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.handout-card').forEach(card => {
+        card.classList.remove('active');
+      });
+      document.querySelectorAll('.nav-btn').forEach(b => {
+        b.classList.remove('active');
+      });
+
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>ZyMedBio - UV 포렌식 조사</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #080a08;
+    color: #eee;
+    font-family: 'Georgia', serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 10px;
+    margin: 0;
+    user-select: none;
+  }
+
+  .instructions {
+    margin-bottom: 15px;
+    font-size: 13px;
+    color: #b388ff;
+    font-family: monospace;
+    letter-spacing: 1px;
+  }
+
+  /* 문서 본체 래퍼 */
+  .document-stage {
+    position: relative;
+    width: 650px;
+    height: 480px;
+    background: #eeddc5;
+    border-radius: 4px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.9), inset 0 0 50px rgba(120, 90, 60, 0.4);
+    overflow: hidden;
+    cursor: none; /* 실제 마우스 커서를 숨기고 UV 조명으로 대체 */
+  }
+
+  /* 기본 일반 텍스트 레이어 (밝은 조명 상태의 일상적인 서류) */
+  .layer-normal {
+    position: absolute;
+    inset: 0;
+    padding: 40px;
+    color: #2b231d;
+    line-height: 1.8;
+    font-size: 15px;
+  }
+
+  .doc-header {
+    border-bottom: 2px solid #8b7355;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-family: monospace;
+    font-weight: bold;
+    color: #4a3525;
+  }
+
+  /* UV 라이트 숨김 레이어 (마우스 반경만 투과되는 암흑/형광 레이어) */
+  .layer-uv {
+    position: absolute;
+    inset: 0;
+    padding: 40px;
+    background: rgba(10, 5, 20, 0.95); /* 어두운 자외선 방 암전 */
+    color: #00ffff;
+    line-height: 1.8;
+    font-size: 15px;
+    pointer-events: none;
+    /* CSS Radial Gradient 마스크: 마우스 위치 중심으로만 투과 */
+    mask-image: radial-gradient(circle 120px at var(--x, -200px) var(--y, -200px), black 0%, black 70%, transparent 100%);
+    -webkit-mask-image: radial-gradient(circle 120px at var(--x, -200px) var(--y, -200px), black 0%, black 70%, transparent 100%);
+  }
+
+  /* 형광 비밀 잉크 스타일 */
+  .uv-secret {
+    position: absolute;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    text-shadow: 0 0 8px currentColor;
+  }
+
+  .uv-purple {
+    color: #d580ff;
+    text-shadow: 0 0 10px #c040ff, 0 0 20px #8000ff;
+  }
+
+  .uv-blood {
+    color: #ff3333;
+    font-family: cursive;
+    font-size: 18px;
+    text-shadow: 0 0 8px rgba(255, 0, 0, 0.8);
+    transform: rotate(-3deg);
+  }
+
+  .uv-glyph {
+    position: absolute;
+    border: 2px dashed #00ffaa;
+    border-radius: 50%;
+    box-shadow: 0 0 15px #00ffaa, inset 0 0 15px #00ffaa;
+    opacity: 0.8;
+  }
+
+  /* 손전등 불빛 테두리 링 가이드 */
+  .uv-cursor-ring {
+    position: absolute;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    border: 1px solid rgba(180, 100, 255, 0.4);
+    box-shadow: inset 0 0 20px rgba(150, 50, 255, 0.2), 0 0 25px rgba(120, 0, 255, 0.3);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    left: var(--x, -200px);
+    top: var(--y, -200px);
+  }
+</style>
+</head>
+<body>
+
+<div class="instructions">
+  [!] 마우스를 서류 위로 움직여 자외선(UV) 특수 반응 잉크를 조사하십시오.
+</div>
+
+<div class="document-stage" id="stage">
+  <!-- 1. 평범한 일반 서류 레이어 -->
+  <div class="layer-normal">
+    <div class="doc-header">
+      <span>ZYMEDBIO CORP. 내부 보고서</span>
+      <span>CLEARANCE: LEVEL 2</span>
+    </div>
+    <p><strong>수신:</strong> 짐 코너티 부사장 (Jim Conaty)</p>
+    <p><strong>발신:</strong> 생체화학 개발 3팀</p>
+    <p><strong>제목:</strong> 신규 혈청 배치(Batch-9) 임상 완료 건</p>
+    <br>
+    <p>
+      경찰서장 테드 도슨 및 일반 자원자들을 대상으로 한 Zylactis 2차 투여가 안정적으로 완료되었습니다.
+      피험자들은 모두 놀라운 세포 재생력을 보이고 있으며, 일상 업무 복귀에 어떠한 임상적 문제도 발견되지 않았습니다.
+    </p>
+    <p>
+      향후 추가적인 검진은 불필요할 것으로 판단되며, 예정대로 정규 공급 라인으로 이관을 진행합니다.
+    </p>
+  </div>
+
+  <!-- 2. UV 흑광 램프에만 반응하는 숨겨진 진실 레이어 -->
+  <div class="layer-uv" id="uvLayer">
+    <div class="doc-header" style="color: #7755aa; border-color: #553388;">
+      <span>ZYMEDBIO CORP. 내부 보고서</span>
+      <span>[오염된 서류]</span>
+    </div>
+
+    <!-- 숨겨진 형광 메모 1: 화학식/비밀번호 -->
+    <div class="uv-secret uv-purple" style="top: 135px; right: 45px;">
+      [ 지하 밀실 금고 코드: 0 4 1 8 # ]
+    </div>
+
+    <!-- 숨겨진 형광 메모 2: 진실 폭로 -->
+    <div class="uv-secret uv-blood" style="top: 260px; left: 50px; width: 450px;">
+      "거짓말이다. 도슨의 턱뼈가 갈라지고 있다.<br>
+      인간의 유전자가 붕괴되어 숲의 짐승으로 변하고 있다."
+    </div>
+
+    <!-- 숨겨진 형광 마법진 문양 -->
+    <div class="uv-glyph" style="bottom: 35px; right: 50px; width: 90px; height: 90px;">
+      <div style="position: absolute; inset: 15px; border: 1px solid #00ffaa; border-radius: 50%;"></div>
+      <div style="text-align: center; line-height: 90px; color: #00ffaa; font-size: 11px; font-family: monospace;">SHUB-NIG</div>
+    </div>
+  </div>
+
+  <!-- 3. UV 램프 커서 링 -->
+  <div class="uv-cursor-ring" id="uvRing"></div>
+</div>
+
+<script>
+  const stage = document.getElementById('stage');
+
+  stage.addEventListener('mousemove', (e) => {
+    const rect = stage.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    stage.style.setProperty('--x', `${x}px`);
+    stage.style.setProperty('--y', `${y}px`);
+  });
+
+  stage.addEventListener('mouseleave', () => {
+    stage.style.setProperty('--x', `-300px`);
+    stage.style.setProperty('--y', `-300px`);
+  });
+</script>
+
+</body>
+</html>

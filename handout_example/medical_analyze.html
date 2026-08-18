@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>ZyMedBio - 법의학 검시 기록부</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #090d0b;
+    color: #e5e7eb;
+    font-family: 'Georgia', serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 10px;
+    margin: 0;
+    user-select: none;
+  }
+
+  .instructions {
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #4ade80;
+    font-family: monospace;
+    letter-spacing: 1px;
+  }
+
+  /* 메인 부검대 래퍼 */
+  .autopsy-frame {
+    width: 780px;
+    background: #151d18;
+    border: 3px solid #233328;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.9), inset 0 0 25px rgba(0,0,0,0.7);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  /* 상단 변사체 기본 정보 */
+  .header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #2e4435;
+    padding-bottom: 10px;
+    font-family: monospace;
+  }
+
+  .case-title {
+    font-size: 15px;
+    font-weight: bold;
+    color: #fca5a5;
+  }
+
+  .progress-badge {
+    font-size: 12px;
+    color: #86efac;
+    background: #062814;
+    border: 1px solid #22c55e;
+    padding: 3px 8px;
+    border-radius: 3px;
+  }
+
+  /* 2단 분할 본문 영역 */
+  .main-stage {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 20px;
+    min-height: 420px;
+  }
+
+  /* 좌측 인체 실루엣 캔버스 영역 */
+  .body-container {
+    position: relative;
+    background: #0a0f0c;
+    border: 2px solid #1c2b20;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+  }
+
+  /* SVG 인체 실루엣 */
+  .silhouette {
+    width: 220px;
+    height: 380px;
+    fill: #1e2d23;
+    stroke: #344c3d;
+    stroke-width: 1.5;
+  }
+
+  /* 외상 클릭 포인트 마커 */
+  .wound-point {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.3);
+    border: 2px solid #ef4444;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    transform: translate(-50%, -50%);
+  }
+
+  .wound-point::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #ef4444;
+  }
+
+  .wound-point:hover {
+    transform: translate(-50%, -50%) scale(1.2);
+    background: rgba(239, 68, 68, 0.6);
+  }
+
+  .wound-point.active {
+    border-color: #22c55e;
+    box-shadow: 0 0 12px #22c55e;
+  }
+  .wound-point.active::after {
+    background: #22c55e;
+    box-shadow: 0 0 8px #22c55e;
+  }
+
+  .wound-point.inspected {
+    border-color: #3b82f6;
+  }
+  .wound-point.inspected::after {
+    background: #3b82f6;
+  }
+
+  /* 위치별 마커 좌표 */
+  .pt-head  { top: 58px;  left: 160px; }
+  .pt-neck  { top: 96px;  left: 160px; }
+  .pt-chest { top: 145px; left: 160px; }
+  .pt-arm   { top: 180px; left: 95px;  }
+
+  /* 우측 상세 소견 패널 */
+  .report-panel {
+    background: #0d1410;
+    border: 2px solid #233328;
+    border-radius: 6px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .finding-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #4ade80;
+    margin-bottom: 6px;
+    font-family: monospace;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .finding-body {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #cbd5e1;
+    background: #070a08;
+    border: 1px solid #19261d;
+    padding: 15px;
+    border-radius: 4px;
+    min-height: 160px;
+  }
+
+  /* 최종 종합 소견 및 복사 툴바 */
+  .conclusion-box {
+    margin-top: 15px;
+    padding: 12px 15px;
+    background: #062814;
+    border: 1.5px solid #22c55e;
+    border-radius: 4px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .conclusion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .conclusion-title {
+    font-size: 12px;
+    font-family: monospace;
+    font-weight: bold;
+    color: #86efac;
+  }
+
+  .btn-copy {
+    background: #166534;
+    color: #fff;
+    border: 1px solid #4ade80;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-family: monospace;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-copy:hover {
+    background: #22c55e;
+    color: #000;
+  }
+</style>
+</head>
+<body>
+
+<div class="instructions">
+  [!] 인체 실루엣의 붉은 외상 부위를 클릭하여 정밀 검시 소견을 확인하십시오.
+</div>
+
+<div class="autopsy-frame">
+  <!-- 상단 변사체 정보 -->
+  <div class="header-bar">
+    <div class="case-title">변사체 검시 보고서 (CASE #1984-B09)</div>
+    <div class="progress-badge" id="progressText">조사 진행: 0 / 4 부위</div>
+  </div>
+
+  <!-- 메인 검시 영역 -->
+  <div class="main-stage">
+    <!-- 좌측 인체 실루엣 + 포인트 -->
+    <div class="body-container">
+      <!-- 인체 실루엣 SVG -->
+      <svg class="silhouette" viewBox="0 0 200 360">
+        <!-- 머리 -->
+        <circle cx="100" cy="38" r="26"/>
+        <!-- 목 -->
+        <path d="M92 64 L108 64 L110 78 L90 78 Z"/>
+        <!-- 몸통 & 어깨 -->
+        <path d="M60 85 Q100 78 140 85 L132 195 Q100 198 68 195 Z"/>
+        <!-- 왼팔 (보는 기준 좌측) -->
+        <path d="M60 85 Q45 130 40 185 Q35 220 40 240 L50 238 Q48 185 65 140 Z"/>
+        <!-- 오른팔 (보는 기준 우측) -->
+        <path d="M140 85 Q155 130 160 185 Q165 220 160 240 L150 238 Q152 185 135 140 Z"/>
+        <!-- 왼다리 -->
+        <path d="M72 195 L68 280 L62 345 L82 345 L88 280 L94 196 Z"/>
+        <!-- 오른다리 -->
+        <path d="M128 195 L132 280 L138 345 L118 345 L112 280 L106 196 Z"/>
+      </svg>
+
+      <!-- 클릭 마커 4개 -->
+      <div class="wound-point pt-head" data-id="head" title="두부"></div>
+      <div class="wound-point pt-neck" data-id="neck" title="경부(목)"></div>
+      <div class="wound-point pt-chest" data-id="chest" title="흉곽"></div>
+      <div class="wound-point pt-arm" data-id="arm" title="좌측 상지"></div>
+    </div>
+
+    <!-- 우측 소견 보고서 패널 -->
+    <div class="report-panel">
+      <div>
+        <div class="finding-title">
+          <span id="partName">[ 부위를 선택하십시오 ]</span>
+          <span id="partTag" style="font-size: 11px; color: #9ca3af;">STAN-EXAM</span>
+        </div>
+        <div class="finding-body" id="partDesc">
+          좌측 인체도의 붉은색 외상 마커를 클릭하면 부검의의 정밀 소견이 여기에 표시됩니다.
+        </div>
+      </div>
+
+      <!-- 4부위 모두 조사 시 개방되는 종합 소견 -->
+      <div class="conclusion-box" id="conclusionBox">
+        <div class="conclusion-header">
+          <span class="conclusion-title">✓ [법의학 종합 판정 소견서 완성]</span>
+          <button class="btn-copy" id="copyBtn">📋 검시서 전문 복사</button>
+        </div>
+        <div style="font-size: 12.5px; color: #cbd5e1; line-height: 1.5;">
+          사인은 경추 파열 및 과다출혈. 가해 개체는 인간이 아니며, 지하실 잠금 해제 단서가 피해자의 주머니에서 수거됨.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 부위별 검시 데이터
+  const autopsyData = {
+    head: {
+      name: "1. 두부 (Head & Skull)",
+      tag: "안구 및 하악 골절",
+      desc: `• <strong>소견:</strong> 양측 안와 주변에 심한 피하 출혈 및 타박상 확인.<br>
+• <strong>특이 사항:</strong> 동공이 비정상적으로 확장되어 있으며, 안와 안쪽에서 정체불명의 <strong>검은색 점액질</strong>이 소량 채취됨.`
+    },
+    neck: {
+      name: "2. 경부 (Neck & Throat)",
+      tag: "치명상 (사인)",
+      desc: `• <strong>소견:</strong> 경추 3번 및 4번의 완전 골절. 기도가 찢겨나감.<br>
+• <strong>자상 분석:</strong> 사람이나 일반 맹수의 치열이 아님. <strong>굽어있는 3열의 원추형 이빨 자국</strong>이 관찰되며, 신경독 성분의 타액 반응 검출.`
+    },
+    chest: {
+      name: "3. 흉곽 (Thorax)",
+      tag: "압박 골절",
+      desc: `• <strong>소견:</strong> 늑골 5개가 안쪽으로 함몰 골절됨. 거대한 둔기나 발굽 형태의 체중으로 강하게 짓밟힌 흔적.<br>
+• <strong>피복 조사:</strong> 찢어진 셔츠 안쪽 주머니에서 피에 젖은 메모지 발견. 메모 내용: <strong>[ 영안실 보관함 코드: 8 2 0 4 ]</strong>`
+    },
+    arm: {
+      name: "4. 좌측 상지 (Left Forearm)",
+      tag: "방어흔 (Defense Wound)",
+      desc: `• <strong>소견:</strong> 방어 과정에서 발생한 깊은 열상 및 손톱 파열.<br>
+• <strong>증거 수거:</strong> 피해자의 손톱 밑에서 가해 개체의 것으로 추정되는 <strong>거친 짐승 털</strong>과 <strong>ZyMedBio 제약 라벨 조각</strong>이 수거됨.`
+    }
+  };
+
+  const fullReportText = `[변사체 부검 소견서 - CASE #1984-B09]
+• 두부: 안와 주변 출혈 및 원인불명의 검은 점액질 검출.
+• 경부: 3열 원추형 치열에 의한 경추 파열 및 기도 손상 (직접 사인).
+• 흉곽: 늑골 함몰 골절. 피복 메모에서 [ 영안실 보관함 코드: 8204 ] 확보.
+• 상지: 방어흔 손톱 밑에서 거친 짐승 털 및 ZyMedBio 라벨 조각 수거.
+• 종합 결론: 비인간형 괴생명체에 의한 습격으로 판명.`;
+
+  const points = document.querySelectorAll('.wound-point');
+  const partName = document.getElementById('partName');
+  const partTag = document.getElementById('partTag');
+  const partDesc = document.getElementById('partDesc');
+  const progressText = document.getElementById('progressText');
+  const conclusionBox = document.getElementById('conclusionBox');
+  const copyBtn = document.getElementById('copyBtn');
+
+  const inspectedSet = new Set();
+
+  points.forEach(pt => {
+    pt.addEventListener('click', () => {
+      const id = pt.dataset.id;
+      const data = autopsyData[id];
+
+      // 활성화 스타일 처리
+      points.forEach(p => p.classList.remove('active'));
+      pt.classList.add('active');
+      pt.classList.add('inspected');
+
+      // 내용 출력
+      partName.innerText = data.name;
+      partTag.innerText = data.tag;
+      partDesc.innerHTML = data.desc;
+
+      // 진행도 갱신
+      inspectedSet.add(id);
+      progressText.innerText = `조사 진행: ${inspectedSet.size} / 4 부위`;
+
+      // 4개 부위 모두 확인 시 종합 결론 개방
+      if (inspectedSet.size === 4) {
+        conclusionBox.style.display = 'flex';
+        progressText.style.background = "#14532d";
+        progressText.innerText = "조사 완료 (4 / 4)";
+      }
+    });
+  });
+
+  // 복사 기능
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(fullReportText).then(() => {
+      const origin = copyBtn.innerText;
+      copyBtn.innerText = "✓ 복사 완료!";
+      copyBtn.style.background = "#22c55e";
+      copyBtn.style.color = "#000";
+
+      setTimeout(() => {
+        copyBtn.innerText = origin;
+        copyBtn.style.background = "#166534";
+        copyBtn.style.color = "#fff";
+      }, 1500);
+    });
+  });
+</script>
+
+</body>
+</html>

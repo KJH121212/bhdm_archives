@@ -1,0 +1,137 @@
+// ================= 설정 영역 =================
+const JOURNAL_NAME = "호질_비밀서류"; // 대상 저널 이름
+const CORRECT_CODE = "0724";       // 금고 비밀번호
+// ============================================
+
+const targetJournal = game.journal.getName(JOURNAL_NAME);
+
+if (!targetJournal) {
+  ui.notifications.error(`[오류] '${JOURNAL_NAME}' 이름의 저널을 찾을 수 없습니다.`);
+  return;
+}
+
+// 저널의 기본 권한 상태 확인 (0: NONE, 1: LIMITED, 2: OBSERVER, 3: OWNER)
+const currentDefaultPermission = targetJournal.ownership?.default ?? 0;
+const isAlreadyUnlocked = currentDefaultPermission >= CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER;
+
+// 이미 플레이어에게 해금된 상태라면 바로 열기
+if (isAlreadyUnlocked) {
+  ui.notifications.info("이미 잠금이 해제된 금고입니다. 문서를 엽니다.");
+  targetJournal.sheet.render(true);
+  return;
+}
+
+// 금고 UI HTML
+const dialogContent = `
+<style>
+  .fvtt-safe-container {
+    background: #111217;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .fvtt-safe-screen {
+    width: 100%;
+    height: 42px;
+    background: #080a0c;
+    border: 2px solid #20242d;
+    border-radius: 4px;
+    color: #00ff66;
+    font-family: monospace;
+    font-size: 24px;
+    text-align: center;
+    line-height: 42px;
+    letter-spacing: 8px;
+  }
+  .fvtt-safe-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    width: 100%;
+  }
+  .fvtt-safe-btn {
+    background: #2a2c37;
+    color: #e0e4ee;
+    border: 1px solid #4f5466;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 0;
+    cursor: pointer;
+    border-radius: 4px;
+    text-align: center;
+    user-select: none;
+  }
+  .fvtt-safe-btn:hover { background: #3f4354; }
+  .fvtt-safe-btn:active { background: #1b1d24; }
+</style>
+
+<div class="fvtt-safe-container">
+  <div id="safe-screen" class="fvtt-safe-screen">----</div>
+  <div class="fvtt-safe-grid">
+    <div class="fvtt-safe-btn num-key" data-val="1">1</div>
+    <div class="fvtt-safe-btn num-key" data-val="2">2</div>
+    <div class="fvtt-safe-btn num-key" data-val="3">3</div>
+    <div class="fvtt-safe-btn num-key" data-val="4">4</div>
+    <div class="fvtt-safe-btn num-key" data-val="5">5</div>
+    <div class="fvtt-safe-btn num-key" data-val="6">6</div>
+    <div class="fvtt-safe-btn num-key" data-val="7">7</div>
+    <div class="fvtt-safe-btn num-key" data-val="8">8</div>
+    <div class="fvtt-safe-btn num-key" data-val="9">9</div>
+    <div class="fvtt-safe-btn" id="safe-clr" style="color:#ffaa00;">CLR</div>
+    <div class="fvtt-safe-btn num-key" data-val="0">0</div>
+    <div class="fvtt-safe-btn" id="safe-ent" style="color:#00ffaa;">ENT</div>
+  </div>
+</div>
+`;
+
+let currentInput = "";
+
+const d = new Dialog({
+  title: "🔒 철제 금고 잠금장치",
+  content: dialogContent,
+  buttons: {},
+  render: (html) => {
+    const screen = html.find("#safe-screen");
+
+    html.find(".num-key").click(function() {
+      if (currentInput.length < 4) {
+        currentInput += $(this).data("val");
+        screen.text(currentInput.padEnd(4, "-"));
+      }
+    });
+
+    html.find("#safe-clr").click(function() {
+      currentInput = "";
+      screen.text("----");
+    });
+
+    html.find("#safe-ent").click(async function() {
+      if (currentInput === CORRECT_CODE) {
+        screen.text("OPEN").css("color", "#00ffff");
+        ui.notifications.info("철컥! 금고가 열렸습니다.");
+
+        // 플레이어 전체에게 관찰자(OBSERVER) 권한 부여
+        await targetJournal.update({
+          "ownership.default": CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER
+        });
+
+        // 0.4초 후 다이얼로그를 닫고 저널 열기
+        setTimeout(() => {
+          d.close();
+          targetJournal.sheet.render(true);
+        }, 400);
+      } else {
+        screen.text("FAIL").css("color", "#ff3333");
+        setTimeout(() => {
+          currentInput = "";
+          screen.text("----").css("color", "#00ff66");
+        }, 700);
+      }
+    });
+  }
+});
+
+d.render(true);

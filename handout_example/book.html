@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>De Vermis Mysteriis - 단면 금서 뷰어</title>
+<!-- 고서적/오컬트 감성 웹폰트 로드 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #060504;
+    color: #e5e7eb;
+    font-family: 'Nanum Myeongjo', 'IM Fell English', serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px 10px;
+    margin: 0;
+    user-select: none;
+  }
+
+  .instructions {
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #d97706;
+    font-family: 'Nanum Myeongjo', serif;
+    letter-spacing: 1px;
+  }
+
+  /* 세로형 고서적 바인더 (세로 비율 확장) */
+  .book-container {
+    position: relative;
+    width: 480px;
+    height: 660px;
+    background: #1c0e07;
+    border: 7px solid #0d0603;
+    border-radius: 8px;
+    padding: 14px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.95), inset 0 0 30px rgba(0,0,0,0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* 양피지 내지 페이지 */
+  .page {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #eedcb8;
+    color: #211309;
+    padding: 35px 30px 25px 30px;
+    border-radius: 4px;
+    box-shadow: inset 0 0 45px rgba(110, 50, 10, 0.4), 0 4px 15px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    line-height: 1.85;
+    font-size: 14.5px;
+    overflow: hidden;
+    transition: background 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
+  }
+
+  .page-anim {
+    animation: pageTurn 0.35s ease-in-out;
+  }
+
+  @keyframes pageTurn {
+    0% { opacity: 0.4; transform: scale(0.97) rotate(-0.5deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+
+  /* 상단 헤더 */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2px solid #8c603b;
+    padding-bottom: 8px;
+  }
+
+  .header-title {
+    font-family: 'Cinzel Decorative', 'Nanum Myeongjo', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #4a2810;
+    letter-spacing: 1px;
+  }
+
+  .header-num {
+    font-family: 'IM Fell English', serif;
+    font-size: 13px;
+    color: #6b3e1b;
+    font-style: italic;
+  }
+
+  /* 본문 영역 */
+  .page-body {
+    flex: 1;
+    margin-top: 20px;
+    user-select: text;
+    letter-spacing: -0.2px;
+  }
+
+  .drop-cap {
+    float: left;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 34px;
+    line-height: 30px;
+    padding-top: 4px;
+    padding-right: 6px;
+    color: #6e1c0d;
+    font-weight: bold;
+  }
+
+  .page-footer {
+    text-align: center;
+    font-family: 'Cinzel Decorative', 'Nanum Myeongjo', serif;
+    font-size: 11px;
+    color: #784c28;
+    border-top: 1px dashed #9c734e;
+    padding-top: 8px;
+    letter-spacing: 2px;
+  }
+
+  /* 4페이지 광기 모드 테마 */
+  .insanity-mode {
+    background: #2b0d0d !important;
+    color: #fca5a5 !important;
+    box-shadow: inset 0 0 55px rgba(255, 0, 0, 0.5), 0 0 25px rgba(185, 28, 28, 0.5) !important;
+  }
+  .insanity-mode .header-title,
+  .insanity-mode .header-num,
+  .insanity-mode .page-footer {
+    border-color: #991b1b;
+    color: #ef4444;
+  }
+  .insanity-mode .drop-cap {
+    color: #dc2626;
+  }
+
+  .blood-text {
+    color: #dc2626;
+    font-weight: 800;
+    text-shadow: 0 0 6px rgba(220, 38, 38, 0.6);
+  }
+
+  /* 하단 컨트롤러 */
+  .control-bar {
+    width: 480px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    gap: 8px;
+  }
+
+  .nav-btn {
+    background: #381b0c;
+    color: #fde68a;
+    border: 1.5px solid #6b310d;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-family: 'Nanum Myeongjo', serif;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 0 #150904;
+  }
+
+  .nav-btn:hover:not(:disabled) {
+    background: #6b310d;
+    color: #fff;
+  }
+
+  .nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .btn-copy {
+    background: #1e293b;
+    color: #f8fafc;
+    border: 1.5px solid #475569;
+    padding: 8px 12px;
+    font-size: 11.5px;
+    font-family: 'Nanum Myeongjo', serif;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+  }
+
+  .btn-copy:hover {
+    background: #334155;
+    border-color: #94a3b8;
+  }
+
+  .btn-copy-full {
+    background: #7f1d1d;
+    color: #fecaca;
+    border: 1.5px solid #ef4444;
+  }
+  .btn-copy-full:hover {
+    background: #dc2626;
+    color: #fff;
+  }
+
+  /* 배경 룬 워터마크 */
+  .sigil-watermark {
+    position: absolute;
+    right: 20px;
+    bottom: 25px;
+    width: 140px;
+    height: 140px;
+    opacity: 0.1;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="instructions">
+  [!] 고서적 책장을 넘겨 단서를 확인하고 전문을 복사하십시오.
+</div>
+
+<!-- 단면 고서적 프레임 -->
+<div class="book-container">
+  <div class="page" id="pageSheet">
+    <!-- 배경 마법진 워터마크 -->
+    <svg class="sigil-watermark" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="2"/>
+      <polygon points="50,10 85,75 15,75" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <polygon points="50,90 85,25 15,25" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="50" cy="50" r="18" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3,3"/>
+    </svg>
+
+    <div class="page-header">
+      <span class="header-title" id="pageHeader">DE VERMIS MYSTERIIS</span>
+      <span class="header-num" id="pageNum">PAGE 01</span>
+    </div>
+
+    <div class="page-body" id="pageBody"></div>
+
+    <div class="page-footer" id="pageFooter">- LIBER PRIMUS -</div>
+  </div>
+</div>
+
+<!-- 하단 컨트롤 툴바 -->
+<div class="control-bar">
+  <button class="nav-btn" id="prevBtn" disabled>◀ 이전</button>
+  <button class="btn-copy" id="copyCurrentBtn">📄 현재 장 복사</button>
+  <button class="btn-copy btn-copy-full" id="copyAllBtn">📋 전문 복사</button>
+  <button class="nav-btn" id="nextBtn">다음 ▶</button>
+</div>
+
+<script>
+  // 4개 페이지 데이터 (단면 순차 뷰)
+  const pages = [
+    {
+      page: "PAGE 01",
+      header: "서문: 어미의 강림",
+      footer: "- LIBER PRIMUS -",
+      body: `
+        <span class="drop-cap">인</span>간의 눈이 닿지 않는 검은 숲 깊은 골짜기에는 잉태하는 어미가 머무신다.<br><br>
+        천 마리 새끼를 거느린 숲의 검은 암염소는 결코 썩지 않는 신성한 젖을 내어주며, 그것을 받아 마신 필멸자는 덧없는 질병과 노화의 굴레를 영원히 벗어던지게 되리라.
+      `,
+      isInsane: false
+    },
+    {
+      page: "PAGE 02",
+      header: "제4장: 동화와 변이의 징후",
+      footer: "- SYMPTOMATA MUTATIONIS -",
+      body: `
+        <strong>[육체 변이의 3단계]</strong><br><br>
+        1. <strong>갈증:</strong> 신선한 피와 젖을 향한 억누를 수 없는 충동.<br>
+        2. <strong>파열:</strong> 턱뼈가 수직으로 갈라지며 짐승의 치열 형성.<br>
+        3. <strong>봉헌:</strong> 손가락이 굳어 발굽이 되고 지성이 어미에게 귀속됨.<br><br>
+        <span style="color:#8b0000; font-size:13px;">※ 3단계에 도달한 개체는 인간의 언어를 완전히 상실한다.</span>
+      `,
+      isInsane: false
+    },
+    {
+      page: "PAGE 03",
+      header: "제7장: 금지된 비상 봉쇄법",
+      footer: "- CLAUSURA RITUALIS -",
+      body: `
+        <strong>[변이체 결박 및 역소환]</strong><br><br>
+        육신이 어미에게 완전히 복속되기 전이라면, 
+        지하 제단에 새겨진 <span class="blood-text">[ 8 7 3 2 ]</span>의 인장을 파괴하고 
+        수석 사제의 은제 칼로 심장을 꿰뚫어야 한다.<br><br>
+        <span style="font-size:12.5px; color:#6b2812;">(페이지 여백에 누군가 다급하게 핏자국으로 덧쓴 글씨가 남아있다...)</span>
+      `,
+      isInsane: false
+    },
+    {
+      page: "PAGE 04",
+      header: "⚠ [SANITY CHECK]",
+      footer: "- IA! SHUB-NIGGURATH! -",
+      body: `
+        <div class="blood-text" style="font-size:15px; margin-bottom:12px;">
+          "이야! 이야! 슈브-니구라스! 천 마리 새끼를 밴 숲의 검은 염소여!"
+        </div>
+        종이 위로 검은 점액질이 배어 나오며 귓가에 끔찍한 짐승들의 울음소리가 메아리친다.<br><br>
+        <strong>[봉인 해제 주문]:</strong><br>
+        <span style="color:#fef08a; font-family:'IM Fell English', serif; font-size:14px;">
+          "Iä! Shub-Niggurath! The Black Goat of the Woods with a Thousand Young!"
+        </span>
+      `,
+      isInsane: true
+    }
+  ];
+
+  // 전체 전문 텍스트
+  const fullBookText = `[고서적 원문 번역본 - DE VERMIS MYSTERIIS]
+
+■ PAGE 01 - 서문: 어미의 강림
+인간의 눈이 닿지 않는 검은 숲 깊은 골짜기에는 잉태하는 어미가 머무신다. 천 마리 새끼를 거느린 숲의 검은 암염소는 결코 썩지 않는 신성한 젖을 내어주며, 그것을 받아 마신 필멸자는 덧없는 질병과 노화의 굴레를 영원히 벗어던지게 되리라.
+
+■ PAGE 02 - 제4장: 동화와 변이의 징후
+[육체 변이의 3단계]
+1. 갈증: 신선한 피와 젖을 향한 억누를 수 없는 충동.
+2. 파열: 턱뼈가 수직으로 갈라지며 짐승의 치열 형성.
+3. 봉헌: 손가락이 굳어 발굽이 되고 지성이 어미에게 귀속됨. (3단계에 도달한 개체는 인간의 언어를 상실함)
+
+■ PAGE 03 - 제7장: 금지된 비상 봉쇄법
+[변이체 결박 및 역소환]
+육신이 어미에게 완전히 복속되기 전이라면, 지하 제단에 새겨진 [ 8732 ]의 인장을 파괴하고 수석 사제의 은제 칼로 심장을 꿰뚫어야 한다.
+
+■ PAGE 04 - 제단 봉인 해제 주문 (이성 판정 위험)
+"이야! 이야! 슈브-니구라스! 천 마리 새끼를 밴 숲의 검은 염소여!"
+주문: "Iä! Shub-Niggurath! The Black Goat of the Woods with a Thousand Young!"`;
+
+  const pageSheet = document.getElementById('pageSheet');
+  const pageHeader = document.getElementById('pageHeader');
+  const pageNum = document.getElementById('pageNum');
+  const pageBody = document.getElementById('pageBody');
+  const pageFooter = document.getElementById('pageFooter');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const copyCurrentBtn = document.getElementById('copyCurrentBtn');
+  const copyAllBtn = document.getElementById('copyAllBtn');
+
+  let currentPage = 0;
+
+  function renderPage(index) {
+    const data = pages[index];
+
+    pageSheet.classList.remove('page-anim');
+    void pageSheet.offsetWidth;
+    pageSheet.classList.add('page-anim');
+
+    pageHeader.innerText = data.header;
+    pageNum.innerText = data.page;
+    pageBody.innerHTML = data.body;
+    pageFooter.innerText = data.footer;
+
+    if (data.isInsane) {
+      pageSheet.classList.add('insanity-mode');
+    } else {
+      pageSheet.classList.remove('insanity-mode');
+    }
+
+    prevBtn.disabled = (index === 0);
+    nextBtn.disabled = (index === pages.length - 1);
+  }
+
+  prevBtn.addEventListener('click', () => {
+    if (currentPage > 0) {
+      currentPage--;
+      renderPage(currentPage);
+    }
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (currentPage < pages.length - 1) {
+      currentPage++;
+      renderPage(currentPage);
+    }
+  });
+
+  // 현재 단면 복사
+  copyCurrentBtn.addEventListener('click', () => {
+    const data = pages[currentPage];
+    const cleanBody = pageBody.innerText.trim();
+    const currentText = `[${data.page} - ${data.header}]\n${cleanBody}`;
+
+    navigator.clipboard.writeText(currentText).then(() => {
+      const original = copyCurrentBtn.innerText;
+      copyCurrentBtn.innerText = "✓ 현재 장 복사됨!";
+      copyCurrentBtn.style.background = "#22c55e";
+      copyCurrentBtn.style.color = "#000";
+
+      setTimeout(() => {
+        copyCurrentBtn.innerText = original;
+        copyCurrentBtn.style.background = "#1e293b";
+        copyCurrentBtn.style.color = "#f8fafc";
+      }, 1500);
+    });
+  });
+
+  // 전체 전문 복사
+  copyAllBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(fullBookText).then(() => {
+      const original = copyAllBtn.innerText;
+      copyAllBtn.innerText = "✓ 전체 전문 복사 완료!";
+      copyAllBtn.style.background = "#22c55e";
+      copyAllBtn.style.color = "#000";
+
+      setTimeout(() => {
+        copyAllBtn.innerText = original;
+        copyAllBtn.style.background = "#7f1d1d";
+        copyAllBtn.style.color = "#fecaca";
+      }, 1500);
+    });
+  });
+
+  renderPage(0);
+</script>
+
+</body>
+</html>
